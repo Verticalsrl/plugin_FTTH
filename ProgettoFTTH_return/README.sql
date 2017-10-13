@@ -1,10 +1,8 @@
 /*
-
 PROCEDURA DI INIZIALIZZAZIONE DEL DB PER CONFIGURAZIONE BASE DEL PROGETTO QGIS PER UTILIZZO PLUGIN PROGETTOFTTH_RETURN.
 ATTENZIONE! Il nuovo DB deve avere gia' abilitate le funzioni POSTGIS! Nonche' fornire i permessi di creazione all'utente operatore: seguire le istruzioni delle righe successive.
 
 NOTA BENE: Essendo alcune funzioni create a livello di DB e non piu' scritte nel codice del plugin styesso, se una di queste funzioni viene modificata, occorre aggiornarla MANUALMENTE su tutti i DB che utilizzano il plugin FTTH!!!
-
 */
 
 -- Creare prima un database predisposto per PostGis. Da psql o da pgadmin:
