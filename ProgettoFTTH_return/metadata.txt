@@ -1,0 +1,77 @@
+# This file contains metadata for your plugin. Since 
+# version 2.0 of QGIS this is the proper way to supply 
+# information about a plugin. The old method of 
+# embedding metadata in __init__.py will 
+# is no longer supported since version 2.0.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=ProgettoFTTH_return
+qgisMinimumVersion=2.14
+qgisMaximumVersion=2.14
+description=Associazione contatori - PD - giunti - PFS - PFP
+version=5.1
+author=A.R.Gaeta/Vertical Srl
+email=info@vertical.digital
+release_date=2017/10/13
+
+about=Questo plugin permette di gestire la progettazione della rete ENEL-FTTH
+
+tracker=github.com
+repository=github.com
+# End of mandatory metadata
+
+# Recommended items:
+
+# Uncomment the following line and add your changelog:
+changelog=
+	5.1:  - per importare nuove scale eseguo controllo su tipo geometria Point/MultiPoint cosi da non generare futili conflitti
+		  - modificata maschera "config sezione C" per rendere piu' esplicite le uguaglianze fatte in termini di vincoli sulle UI per le connessioni a cascata SCALA_SCALA e le fibre per altre varie associazioni
+		  - in particolare modificata l'associazione delle UI per le SCALE prendendole dal GIUNTO
+		  - altri aggiustamenti nell'inserimento di campi da scale_append al layer di destinazione scale
+	5.0:  - aggiornata funzione DB public.s_alter_table_fn
+		  - creata nuova funzione DB public.s_alter_scala_fn
+		  - aggiunta funzione run_append in progetto_ftth per agganciare delle nuove scale da shp al layer scala gia' esistente. Controllo sulle nuove geometrie su: geometrie duplicate con quelle di destinazione; n_ui nullo; srid differente con le scale di destinazione
+		  - aggiunto link webgis.map-hosting.it/walkout.htm? al tasto help
+    4.9:  - baco in split_lines: lanciando il comando piu volte successive eliminava man mano i vecchi cavi.
+          - modificato funzione public.pgr_createtopology: dava errore in una query secondo me malposta. Andra' rilanciata a mano su tutti i nuovi DB
+          - aggiunta icona 'updatedb' per rilanciare sul DB in uso le ultime versioni piu' aggiornate di alcune funzioni presenti sullo schema public, per agevolare il lavoro
+    4.8:  - aggiunto pulsante per calcolare alcuni campi su cavo: occcorre compilare per far riconoscere l'icona, ma la funzione e' gia' operativa sul file README.sql
+    4.7b: - forse risolto il problema di topologia per la funzione split_lines_to_lines - da testare. Il problema precedente era che la seconda parte della UNION in split_lines_to_lines_conclusivo non spezzava le linee che si intersecavano senza condividere vertici (e questo e' buono), pero creava comunque dei nodi che mandavano in tilt il successivo routing
+          - aggiunti anche alcuni campi al layer scala nel caso di caricamento da zero --> modifiche funzione s_alter_table in readme.sql
+    4.7:  - ripulisco il cavo da geometrie corrotte poco prima del routing, in db_cavoroute.py -> 'query_clean'
+          - lo sviluppo di caricare i layer tramite servizio e' temporaneamente sospeso. vedere righe commentate in progetto_ftth.py -> cerca '_service_operatore'. Ad ogni modo occorreva riportare tutte le modifiche a valle per caricare host e db...
+    4.6b: - provo a caricare i layer tramite servizio postgres in modo tale da evitare il timeout - da testare!
+    4.6:  - corretto qualche baco: la procedura del plugin a volte non si prendeva la vaiabile epsg_rid definita da progetto_ftth, spero di aver risolto
+    4.5b: - modificata funzione split_lines_to_lines_conclusivo in modo tale da non andare in conflitto con il successivo pgrouting: da testare!
+          - modificata funzione s_alter_table, ed in questo senso modificato anche l'ordine di alcune righe nel codice in modo da evitare alcuni errori, come ad esempio l'assenza del campo id_scala
+    4.5:  - baco in db_cavoroute.py nel collegamento a cascata. Ad es. PTA-PTA, considerava anche i collegamenti PTA-PD dello stesso PTA figlio.
+    4.4:  - corretto baco su verifica grouping funzione check_grouping in db_solid.py per filtrare elementi su area_PFP
+          - blocco in fase di routing se qualche SCALA ha n_ui=NULL
+    4.3:  - filtro routing scale/PTA/giunti/PD/PFS solo su area PFP presente in progetto.
+          - ATTENZIONE!! e' stato riscontrato un ERRORE sulla funzione split_lines_to_lines ovvero dopo aver tagliato il cavo alle intersezioni il PGROUTING pare non funzionare piu'. Da risolvere.
+    4.2:  - aggiungo campi alle nuove tabelle create su DB tramite la funzione public.s_alter_table_fn, registrata nel file README.sql
+    4.1b: - prova creazione funzioni split_lines_to_lines a livello di DB sotto public una volta per tutte e non a livello di singolo schema in modo tale da facilitarne l'aggiornamento
+    4.1:  - risolti altri bachi su funzione split_lines_to_lines: problema da MultiLinestring a Linestring
+    4.0:  - funzione split_lines_to_lines migliorata, possibile lanciarla piu' volte analizzando solo i cavi NUOVI - non vale su CAVI MODIFICATI. Da testare!
+    3.9:  - riparto sviluppando solo per QGis 2.14. Difatto cambia il solito comando da selectByIds a setSelectedFeatures
+          - corrette le funzioni split_lines_to_lines nel caso soprattutto della pulizia di residui di operazioni precedenti
+    3.8:  - ULTIMA VERSIONE SVILUPPATA PER QGis 2.18!!!
+          - caricamento dati da shp a DB impostando singlegeometry
+          - correzione funzioni split_lines_to_lines
+    ...
+
+
+# Tags are comma separated with spaces allowed
+tags=enel,giunti,rete elettrica,ftth
+
+homepage=http://vertical.digital/
+category=Plugins
+icon=icon.png
+# experimental flag
+experimental=True
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
