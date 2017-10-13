@@ -30,6 +30,7 @@ changelog=
 		  - modificata maschera "config sezione C" per rendere piu' esplicite le uguaglianze fatte in termini di vincoli sulle UI per le connessioni a cascata SCALA_SCALA e le fibre per altre varie associazioni
 		  - in particolare modificata l'associazione delle UI per le SCALE prendendole dal GIUNTO
 		  - altri aggiustamenti nell'inserimento di campi da scale_append al layer di destinazione scale
+		  - aggiunti altri campi al layer cavo tramite funzione s_alter_table_fn
 	5.0:  - aggiornata funzione DB public.s_alter_table_fn
 		  - creata nuova funzione DB public.s_alter_scala_fn
 		  - aggiunta funzione run_append in progetto_ftth per agganciare delle nuove scale da shp al layer scala gia' esistente. Controllo sulle nuove geometrie su: geometrie duplicate con quelle di destinazione; n_ui nullo; srid differente con le scale di destinazione

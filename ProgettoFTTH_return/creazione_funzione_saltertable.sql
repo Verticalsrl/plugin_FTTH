@@ -64,6 +64,16 @@ EXCEPTION WHEN others THEN
 END;
 
 BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo
+ADD COLUMN n_mt_occ_CD character varying(50),
+ADD COLUMN n_mt_occ_1 character varying(50),
+ADD COLUMN n_mt_occ_2 character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
 EXECUTE format('ALTER TABLE IF EXISTS %s.giunti
 ADD COLUMN wo varchar(6),
 ADD COLUMN tipo varchar(25),
