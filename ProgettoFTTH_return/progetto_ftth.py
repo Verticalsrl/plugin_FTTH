@@ -3881,7 +3881,7 @@ PFS: %(id_pfs)s"""
         searchfile = open(nome_file, "r")
         for line in searchfile:
             if "version=" in line:
-                version = str(line[8:11])
+                version = str(line[8:13])
                 #Utils.logMessage(str(line[8:]))
             if "release_date=" in line:
                 release_date = str(line[13:23])

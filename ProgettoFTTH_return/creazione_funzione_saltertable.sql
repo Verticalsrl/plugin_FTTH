@@ -15,11 +15,132 @@ BEGIN
 
 
 BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN cod_belf character varying(5);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN lotto character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN cod_geom integer;', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN id_pop_end character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+
+BEGIN
 EXECUTE format('ALTER TABLE IF EXISTS %s.cavo RENAME COLUMN posa TO tipo_posa;', schemaname);
 EXCEPTION WHEN others THEN
       RAISE NOTICE 'Error code: %', SQLSTATE;
       RAISE NOTICE 'Error message: %', SQLERRM;
 END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN tipo_posa character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN tipo_minit character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN codice_inf character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN tipo_pav character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN n_mtubo character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN n_tubi character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN d_tubi character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN libero character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN n_mt_occ character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN mod_mtubo character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN flag_posa character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN posa_dett character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN tipo_scavo character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
 
 BEGIN
 EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN length_m double precision;', schemaname);
