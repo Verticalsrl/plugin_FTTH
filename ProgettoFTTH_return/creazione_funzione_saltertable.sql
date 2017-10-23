@@ -149,7 +149,7 @@ EXCEPTION WHEN others THEN
       RAISE NOTICE 'Error message: %', SQLERRM;
 END;
 
-
+/* commento dopo richiesta di Paolo Gatti e Andrea - 21 ott 2017
 --Nuove colonne WALKOUT:
 BEGIN
 EXECUTE format('ALTER TABLE IF EXISTS %s.cavo
@@ -183,6 +183,7 @@ EXCEPTION WHEN others THEN
       RAISE NOTICE 'Error code: %', SQLSTATE;
       RAISE NOTICE 'Error message: %', SQLERRM;
 END;
+*/
 
 BEGIN
 EXECUTE format('ALTER TABLE IF EXISTS %s.cavo
@@ -216,6 +217,7 @@ EXCEPTION WHEN others THEN
       RAISE NOTICE 'Error message: %', SQLERRM;
 END;
 
+/* commento dopo richiesta di Paolo Gatti e Andrea - 21 ott 2017
 BEGIN
 EXECUTE format('ALTER TABLE IF EXISTS %s.pozzetto
 ADD COLUMN wo varchar(6),
@@ -237,7 +239,7 @@ EXCEPTION WHEN others THEN
       RAISE NOTICE 'Error code: %', SQLSTATE;
       RAISE NOTICE 'Error message: %', SQLERRM;
 END;
-
+*/
 
 RAISE NOTICE 'rinomina e aggiunta campi alle tabelle FTTH ultimato';
 
