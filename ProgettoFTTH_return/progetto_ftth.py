@@ -1228,7 +1228,7 @@ class ProgettoFTTH:
             QMessageBox.information(self.dock, self.dock.windowTitle(), 'Routing su SCALA effettuato ma con qualche reticenza')
             
     def lancia_pta_routing(self):
-        #Associo PTA ai vertici pgr: in questo caso ci possono essere più vertici pgr coincidenti con lo stesso PTA, penso come il caso dei GIUNTI
+        #Associo PTA ai vertici pgr: in questo caso ci possono essere piÃ¹ vertici pgr coincidenti con lo stesso PTA, penso come il caso dei GIUNTI
         connInfo = SCALE_layer.source()
         result_calcolo = db_solid.pta_routing(self, connInfo, theSchema)
         if (result_calcolo==0):
@@ -1241,7 +1241,7 @@ class ProgettoFTTH:
             QMessageBox.information(self.dock, self.dock.windowTitle(), 'Routing su PTA effettuato ma con qualche reticenza')
        
     def lancia_giunti_routing(self):
-        #Associo GIUNTO ai vertici pgr: in questo caso ci possono essere più vertici pgr coincidenti con lo stesso GIUNTO.
+        #Associo GIUNTO ai vertici pgr: in questo caso ci possono essere piÃ¹ vertici pgr coincidenti con lo stesso GIUNTO.
         connInfo = SCALE_layer.source()
         result_calcolo = db_solid.giunti_routing(self, connInfo, theSchema)
         if (result_calcolo==0):
@@ -1254,7 +1254,7 @@ class ProgettoFTTH:
             QMessageBox.information(self.dock, self.dock.windowTitle(), 'Routing su GIUNTO effettuato ma con qualche reticenza')
             
     def lancia_pd_routing(self):
-        #Associo PD ai vertici pgr: in questo caso ci possono essere più vertici pgr coincidenti con lo stesso PD.
+        #Associo PD ai vertici pgr: in questo caso ci possono essere piÃ¹ vertici pgr coincidenti con lo stesso PD.
         connInfo = SCALE_layer.source()
         result_calcolo = db_solid.pd_routing(self, connInfo, theSchema)
         if (result_calcolo==0):
@@ -1267,7 +1267,7 @@ class ProgettoFTTH:
             QMessageBox.information(self.dock, self.dock.windowTitle(), 'Routing su PD effettuato ma con qualche reticenza')
             
     def lancia_pfs_routing(self):
-        #Associo PFS ai vertici pgr: in questo caso ci possono essere più vertici pgr coincidenti con lo stesso PFS.
+        #Associo PFS ai vertici pgr: in questo caso ci possono essere piÃ¹ vertici pgr coincidenti con lo stesso PFS.
         connInfo = SCALE_layer.source()
         result_calcolo = db_solid.pfs_routing(self, connInfo, theSchema)
         if (result_calcolo==0):
@@ -1280,7 +1280,7 @@ class ProgettoFTTH:
             QMessageBox.information(self.dock, self.dock.windowTitle(), 'Routing su PFS effettuato ma con qualche reticenza')
             
     def lancia_pfp_routing(self):
-        #Associo PFP ai vertici pgr: in questo caso ci possono essere più vertici pgr coincidenti con lo stesso PFP.
+        #Associo PFP ai vertici pgr: in questo caso ci possono essere piÃ¹ vertici pgr coincidenti con lo stesso PFP.
         connInfo = SCALE_layer.source()
         result_calcolo = db_solid.pfp_routing(self, connInfo, theSchema)
         if (result_calcolo==0):
@@ -3569,7 +3569,7 @@ PFS: %(id_pfs)s"""
                 #CONTROLLO SRID:
                 if (epsg_srid_var != epsg_srid):
                     msg.setText("Gli SRID delle scale non corrispondono, impossibile proseguire.")
-                    msg.setDetailedText('srid SCALE gia sul DB=' + epsg_srid_var + '; srid NUOVE scale=' + epsg_srid)
+                    msg.setDetailedText('srid SCALE gia sul DB=' + str(epsg_srid_var) + '; srid NUOVE scale=' + str(epsg_srid))
                     msg.setIcon(QMessageBox.Critical)
                     msg.setStandardButtons(QMessageBox.Ok)
                     msg.setWindowTitle("Errore nell'importazione!")
