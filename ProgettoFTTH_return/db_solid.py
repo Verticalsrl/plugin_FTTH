@@ -286,6 +286,14 @@ def calcola_route(self, connInfo, theSchema):
             LEFT JOIN %(schema)s.scala c ON (c.gid = ANY (b.gid_scala))
             LEFT JOIN %(schema)s.pfs d ON (d.gid = ANY (e.gid_pfs))
             WHERE a.net_type='%(SCALA_PFS)s') AS foo WHERE cavoroute.gid=foo.gid;
+        --PTA_PFS
+        UPDATE %(schema)s.cavoroute SET n_ui=foo.n_ui, from_p=foo.id_giunto, to_p=foo.id_pfs FROM
+            (SELECT a.gid, c.n_ui, c.id_giunto, d.id_pfs FROM %(schema)s.cavoroute a
+            LEFT JOIN %(schema)s.pgrvertices_netpoints_array b ON (b.id_pgr=a.source)
+            LEFT JOIN %(schema)s.pgrvertices_netpoints_array e ON (e.id_pgr=a.target)
+            LEFT JOIN %(schema)s.giunti c ON (c.gid = ANY (b.gid_pta))
+            LEFT JOIN %(schema)s.pfs d ON (d.gid = ANY (e.gid_pfs))
+            WHERE a.net_type='%(PTA_PFS)s') AS foo WHERE cavoroute.gid=foo.gid;
         --PTA_PD
         UPDATE %(schema)s.cavoroute SET n_ui=foo.n_ui, from_p=foo.id_giunto, to_p=foo.id_pd FROM
             (SELECT a.gid, c.n_ui, c.id_giunto, d.id_pd FROM %(schema)s.cavoroute a
@@ -351,7 +359,7 @@ def calcola_route(self, connInfo, theSchema):
             LEFT JOIN %(schema)s.pfp d ON (d.gid = ANY (e.gid_pfp))
         WHERE a.net_type='%(PFS_PFP)s') AS foo WHERE cavoroute.gid=foo.gid;"""
         
-        query_update = query_update_raw % {'schema': theSchema, 'SCALA_PTA': self.NET_TYPE['SCALA_PTA'], 'SCALA_GIUNTO': self.NET_TYPE['SCALA_GIUNTO'], 'SCALA_PD': self.NET_TYPE['SCALA_PD'], 'SCALA_PFS': self.NET_TYPE['SCALA_PFS'], 'PTA_PTA': self.NET_TYPE['PTA_PTA'], 'PTA_GIUNTO': self.NET_TYPE['PTA_GIUNTO'], 'GIUNTO_GIUNTO': self.NET_TYPE['GIUNTO_GIUNTO'], 'GIUNTO_PD': self.NET_TYPE['GIUNTO_PD'], 'PTA_PD': self.NET_TYPE['PTA_PD'], 'PD_PFS': self.NET_TYPE['PD_PFS'], 'PFS_PFP': self.NET_TYPE['PFS_PFP'], 'SCALA_SCALA': self.NET_TYPE['SCALA_SCALA'], 'PD_PD' : self.NET_TYPE['PD_PD']}
+        query_update = query_update_raw % {'schema': theSchema, 'SCALA_PTA': self.NET_TYPE['SCALA_PTA'], 'SCALA_GIUNTO': self.NET_TYPE['SCALA_GIUNTO'], 'SCALA_PD': self.NET_TYPE['SCALA_PD'], 'SCALA_PFS': self.NET_TYPE['SCALA_PFS'], 'PTA_PTA': self.NET_TYPE['PTA_PTA'], 'PTA_GIUNTO': self.NET_TYPE['PTA_GIUNTO'], 'GIUNTO_GIUNTO': self.NET_TYPE['GIUNTO_GIUNTO'], 'GIUNTO_PD': self.NET_TYPE['GIUNTO_PD'], 'PTA_PD': self.NET_TYPE['PTA_PD'], 'PD_PFS': self.NET_TYPE['PD_PFS'], 'PFS_PFP': self.NET_TYPE['PFS_PFP'], 'SCALA_SCALA': self.NET_TYPE['SCALA_SCALA'], 'PD_PD' : self.NET_TYPE['PD_PD'], 'PTA_PFS' : self.NET_TYPE['PTA_PFS']}
         cur.execute(query_update)
         #test_conn.commit()
         

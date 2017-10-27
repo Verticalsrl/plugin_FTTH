@@ -32,6 +32,7 @@ NUOVA VERSIONE - CASCATA:
 - nella funzione "associa_cascata_scala" e "associa_cascata_pd" nonche' in quella dei "associa_padri_giunti" io mi fermo solo al PRIMO LIVELLO di connessione, dovrei invece ciclare fino a beccare TUTTI i figli...!
 - ho imposto:   FIBRE_CAVO['SCALA_SCALA'] = FIBRE_CAVO['SCALA_PTA']
     FIBRE_CAVO['PD_PD'] = FIBRE_CAVO['GIUNTO_PD']
+    FIBRE_CAVO['PTA_PFS'] = FIBRE_CAVO['PTA_PD']
 - occorrerebbe forse a questo punto pensare ad un modo per come scollegare un punto SENZA eliminarlo...
 - le SCALE non essendo possibile eliminarle non e' possibile SCOLLEGARLE!
 
@@ -187,6 +188,7 @@ class ProgettoFTTH:
     FIBRE_CAVO['GIUNTO_GIUNTO'] = FIBRE_CAVO['GIUNTO_PD']
     FIBRE_CAVO['PTA_GIUNTO'] = FIBRE_CAVO['GIUNTO_PD']
     FIBRE_CAVO['PTA_PTA'] = FIBRE_CAVO['GIUNTO_PD']
+    FIBRE_CAVO['PTA_PFS'] = FIBRE_CAVO['PTA_PD']
     FIBRE_CAVO['SCALA_SCALA'] = FIBRE_CAVO['SCALA_PTA']
     FIBRE_CAVO['PD_PD'] = FIBRE_CAVO['GIUNTO_PD']
     #le chiavi di net_type devono essere LE STESSE di fibre_cavo. Indicano il valore da scrivere nel layer cavoroute
@@ -201,7 +203,7 @@ class ProgettoFTTH:
         'PTA_PTA': "PTA-PTA",
         'PTA_GIUNTO': "PTA-giunto",
         'PTA_PD': "PTA-PD",
-        'PTA_PD': "PTA-PD",
+        'PTA_PFS': "PTA-PFS",
         'PD_PD': "PD-PD",
         'PD_PFS': "PD-PFS",
         'PFS_PFP': "PFS-PFP"
@@ -3539,11 +3541,11 @@ PFS: %(id_pfs)s"""
                 comuneDB = results_var['cod_belf']
                 codice_lotto = results_var['lotto']
 
-                layer_loaded = layer_scala
-                layer_loaded_geom = layer_loaded.wkbType()
+                #layer_loaded = layer_scala
+                layer_loaded_geom = layer_scala.wkbType()
                 uri = None
                 #la chiave gid potrebbe non esserci. La aggiungo gia' allo shp, ma primo controllo non vi sia gia':
-                field_names = [field.name() for field in layer_loaded.pendingFields() ]
+                field_names = [field.name() for field in layer_scala.pendingFields() ]
                 gid_esistente = 'gid' in field_names
                 Utils.logMessage(str(field_names))
                 
@@ -3551,17 +3553,17 @@ PFS: %(id_pfs)s"""
                     Utils.logMessage("campo gid su shp gia' esistente, continuo")
                 else:
                     Utils.logMessage("campo gid su shp non esistente: lo creo")
-                    res = layer_loaded.dataProvider().addAttributes([QgsField("gid", QVariant.Int)])
-                    layer_loaded.updateFields()
-                    idx = layer_loaded.dataProvider().fieldNameIndex( "gid" )
+                    res = layer_scala.dataProvider().addAttributes([QgsField("gid", QVariant.Int)])
+                    layer_scala.updateFields()
+                    idx = layer_scala.dataProvider().fieldNameIndex( "gid" )
                     n=1
-                    for pt in layer_loaded.getFeatures():
-                        layer_loaded.changeAttributeValue(pt.id(), idx, n)
+                    for pt in layer_scala.getFeatures():
+                        layer_scala.changeAttributeValue(pt.id(), idx, n)
                         n+=1
                 
-                uri = "%s key=gid table=\"%s\".\"%s\" (geom) sql=" % (dest_dir, schemaDB, layer_loaded.name().lower())
+                uri = "%s key=gid table=\"%s\".\"%s\" (geom) sql=" % (dest_dir, schemaDB, layer_scala.name().lower())
                 Utils.logMessage('WKB: ' + str(layer_loaded_geom)+ '; DEST_DIR: ' + str(dest_dir))
-                crs = layer_loaded.crs()
+                crs = layer_scala.crs()
                 
                 epsg_srid = int(crs.postgisSrid())
                 
@@ -3587,7 +3589,7 @@ PFS: %(id_pfs)s"""
                 '''
                 
                 #import shp su DB:
-                error = QgsVectorLayerImport.importLayer(layer_loaded, uri, "postgres", crs, False, False, options)
+                error = QgsVectorLayerImport.importLayer(layer_scala, uri, "postgres", crs, False, False, options)
                 #TypeError: QgsVectorLayerImport.importLayer(QgsVectorLayer, QString uri, QString providerKey, QgsCoordinateReferenceSystem destCRS, bool onlySelected=False, bool skipAttributeCreation=False, dict-of-QString-QVariant options=None, QProgressDialog progress=None)
                 if error[0] != 0:
                     iface.messageBar().pushMessage(u'Error', error[1], QgsMessageBar.CRITICAL, 5)
@@ -3695,7 +3697,7 @@ PFS: %(id_pfs)s"""
                 retval = msg.exec_()
             finally:
                 #tolgo il layer dalla TOC:
-                QgsMapLayerRegistry.instance().removeMapLayer(layer_loaded.id())
+                QgsMapLayerRegistry.instance().removeMapLayer(layer_scala.id())
                 if test_conn is not None:
                     test_conn.close()
         
@@ -3958,6 +3960,7 @@ PFS: %(id_pfs)s"""
             FIBRE_CAVO['GIUNTO_GIUNTO'] = FIBRE_CAVO['GIUNTO_PD']
             FIBRE_CAVO['PTA_GIUNTO'] = FIBRE_CAVO['GIUNTO_PD']
             FIBRE_CAVO['PTA_PTA'] = FIBRE_CAVO['GIUNTO_PD']
+            FIBRE_CAVO['PTA_PFS'] = FIBRE_CAVO['PTA_PD']
             FIBRE_CAVO['SCALA_SCALA'] = FIBRE_CAVO['SCALA_PTA']
             FIBRE_CAVO['PD_PD'] = FIBRE_CAVO['GIUNTO_PD']
             #Utils.logMessage(str(FIBRE_CAVO['PFS_PFP']['F_96']))

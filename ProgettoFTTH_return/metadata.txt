@@ -11,7 +11,7 @@ name=ProgettoFTTH_return
 qgisMinimumVersion=2.14
 qgisMaximumVersion=2.14
 description=Associazione contatori - PD - giunti - PFS - PFP
-version=5.1.5
+version=5.1.6
 author=A.R.Gaeta/Vertical Srl
 email=info@vertical.digital
 release_date=2017/10/27
@@ -34,6 +34,8 @@ changelog=
 		  - al lancio della funzione split_lines_to_lines popolo molti piu' campi del nuovo cavo prendendoli dal cavo precedente
 		  - host e porta di default: riferimento a macchina Linux
 		  - alcune prove per risolvere il baco su append_scale sugli altri pc...
+		  - prime modifiche per abilitare i collegamenti PTA-PFS
+		  - prime modifiche per i nuovi calcoli sulla primaria
 	5.0:  - aggiornata funzione DB public.s_alter_table_fn
 		  - creata nuova funzione DB public.s_alter_scala_fn
 		  - aggiunta funzione run_append in progetto_ftth per agganciare delle nuove scale da shp al layer scala gia' esistente. Controllo sulle nuove geometrie su: geometrie duplicate con quelle di destinazione; n_ui nullo; srid differente con le scale di destinazione

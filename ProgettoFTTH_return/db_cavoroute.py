@@ -13,6 +13,7 @@ QUERY_FROM_TO_NAME = {
     'SCALA_PFS': 'QUERY_SC_PFS',
     'PTA_PD': 'QUERY_PTA_PD',
     'PTA_PTA': 'QUERY_PTA_PTA',
+    'PTA_PFS': 'QUERY_PTA_PFS',
     'PTA_GIUNTO': 'QUERY_PTA_GI',
     'GIUNTO_GIUNTO': 'QUERY_GI_GI',
     'GIUNTO_PD': 'QUERY_GI_PD',
@@ -266,6 +267,15 @@ LEFT JOIN
 LEFT JOIN
 %(schema)s.pgrvertices_netpoints_array d ON (b.gid = ANY (d.gid_pd))
 WHERE a.id_pd IS NOT NULL AND a.id_g_ref IS NULL AND c.id_pgr IS NOT NULL AND d.id_pgr IS NOT NULL AND upper(a.tipo_giunt)='PTA';"""
+
+QUERY_PTA_PFS = """SELECT c.id_pgr AS source, d.id_pgr AS target, a.n_ui FROM %(schema)s.giunti a
+LEFT JOIN
+%(schema)s.pfs b ON (b.id_pfs = a.id_pfs)
+LEFT JOIN
+%(schema)s.pgrvertices_netpoints_array c ON (a.gid = ANY (c.gid_pta))
+LEFT JOIN
+%(schema)s.pgrvertices_netpoints_array d ON (b.gid = ANY (d.gid_pfs))
+WHERE a.id_pfs IS NOT NULL AND a.id_g_ref IS NULL AND c.id_pgr IS NOT NULL AND d.id_pgr IS NOT NULL AND upper(a.tipo_giunt)='PTA';"""
 
 QUERY_GI_PD = """SELECT c.id_pgr AS source, d.id_pgr AS target, a.n_ui FROM %(schema)s.giunti a
 LEFT JOIN
@@ -751,6 +761,66 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     #        test_conn.close()
     
     try:
+        '''#PTA-PFS:
+        id_associazione = 'PTA_PFS'
+        dict_null_id[id_associazione] = []
+        Utils.logMessage('Inizio routing PTA-PFS')
+        query_scala = eval(QUERY_FROM_TO_NAME[id_associazione]) % {'schema': theSchema}
+        cur_pta_pd.execute(query_scala)
+        #results_scala = cur_pta_pd.fetchone()
+        for results_scala in cur_pta_pd:
+            id_source = results_scala[0] or None
+            id_target = results_scala[1] or None #[2, 4, 5, 428, 1224]
+            n_ui = results_scala[2] or None
+            #Mentre ciclo in queste connessioni creo "cavoroute":
+            query_cavoroute = """INSERT INTO %s.cavoroute (net_type, source, target, geom, tipo_posa)
+                SELECT '%s', max(t3.source) AS source, max(t3.target) AS target, ST_CollectionExtract(ST_Multi(ST_Collect(t3.geom)),2)::geometry(MultiLineString, %i) as singlegeom
+                , array_agg(DISTINCT grp||'@'||tipo_posa||'@'||atm) AS tipo_posa
+                FROM (
+                SELECT t2.*, round( (sum(length_m) OVER (PARTITION BY t2.grp))::numeric, 2) AS atm
+                FROM (
+                SELECT
+                f.*, sum(group_flag) OVER (ORDER BY f.seq) AS grp
+                FROM (
+                SELECT b.geom::geometry(MultiLineString, %i)
+                ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq) AS source 
+                ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
+                ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
+                FROM pgr_dijkstra('
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    %i, %i, false, false) AS a
+                LEFT JOIN %s.cavo as b
+                ON (id2 = gid) ORDER BY seq
+            ) As f) AS t2) AS t3;""" % (theSchema, self.NET_TYPE[id_associazione], epsg_srid, epsg_srid, theSchema, id_source, id_target, theSchema)
+            cur_associa_pta_pd.execute(query_cavoroute)
+            test_conn.commit()
+            #associo le fibre:
+            query_associa = """SELECT id2 FROM pgr_dijkstra('
+              SELECT gid AS id,
+              source,
+              target,
+              length_m AS cost
+              FROM %s.cavo',
+              %i, %i, false, false);""" % (theSchema, id_source, id_target)
+            cur_associa_pta_pd.execute(query_associa)
+            results_associacavo_dict = cur_associa_pta_pd.fetchall()
+            if not results_associacavo_dict: #result list is empty
+                dict_null_id[id_associazione].append([id_source, id_target])
+                dict_null_id_not_empty += 1
+            for results_associacavo in results_associacavo_dict:            
+                id_cavo = results_associacavo[0] or None
+                #aggiorno UI cavo:
+                query_update_ui = "UPDATE %s.cavo SET n_ui=n_ui+%i WHERE gid=%i;" % (theSchema, n_ui, id_cavo)
+                cur_update.execute(query_update_ui)
+                #Calcolo subito le fibre:
+                n_ui_rimaste = new_update_fibre(self, test_conn, cur_update_fibre, n_ui, id_cavo, theSchema, id_associazione)
+                #DA MAIL DI GATTI DEL 4 NOVEMBRE 2016: su questa rete, detta anche "rete di drop", NON ciclo piu' ma assegno tutte le fibre al primo giro!
+                test_conn.commit()
+
+        #cur_associa_pta_pd.close()
+        Utils.logMessage('Fine routing PTA-PFS')
+        '''
+        
         #PTA-PD:
         id_associazione = 'PTA_PD'
         dict_null_id[id_associazione] = []
