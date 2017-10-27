@@ -1353,6 +1353,23 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     query_codice_ins = "UPDATE %s.cavo SET f_192 = CASE WHEN upper(codice_ins)='PR' THEN f_192+1 WHEN upper(codice_ins)='PR+BH' THEN f_192+2 WHEN upper(codice_ins)='BH' THEN f_192+1 ELSE f_192 END;" % (theSchema)
     cur_update.execute(query_codice_ins)
     
+    
+    '''
+    #NUOVA RISCHIESTA MAIL GATTI del 24 Ottobre 2017: ricalcolo f_192 e altri campi in base ad altri criteri - DA SVILUPPARE E APPROFONDIRE!!
+    #DUBBI: ma queste somme come si fanno esattamente?? cioe tot_caci2 cosa vuol dire che sommo, cosa sommo se quei campi sono ZERO??
+    #"Tot_cavi1" = sommi i cavi che hanno "CAVI_PR" <> 0 OR "CAVI_BH" <> 0 OR "CAVI_CD" <> 0
+    #"Tot_cavi2" = sommi i cavi dove "CAVI_PR" = 0 AND "CAVI_BH" = 0
+    #"Tot_caviCD" = sommi i cavi dove "CAVI_CD" <> 0
+    query_tot_cavi = "UPDATE %s.cavo SET tot_cavi = tot_cavi1 + tot_cavi2 + tot_cavicd;" % (theSchema)
+    cur_update.execute(query_tot_cavi)
+    
+    query_codice_ins = "UPDATE %s.cavo SET f_192 = cavi_pr + cavi_bh + cavi_cd;" % (theSchema)
+    cur_update.execute(query_codice_ins)
+    
+    test_conn.commit()
+    '''
+
+    
     #Restano ancora da calcolare i cavi e le fibre:
     query_update_cavi = "UPDATE %s.cavo SET tot_cavi=f_4+f_12+f_24+f_48+f_72+f_96+f_144+f_192;" % (theSchema)
     cur_update.execute(query_update_cavi)

@@ -3529,6 +3529,14 @@ PFS: %(id_pfs)s"""
                 cur.execute(query_rem)
                 test_conn.commit()
                 
+                #recupero alcune variabili dal progetto:
+                query_var = """SELECT cod_belf, lotto, srid FROM %s.variabili_progetto_return LIMIT 1;""" % (schemaDB)
+                cur.execute(query_var)
+                results_var = cur.fetchone()
+                epsg_srid_var = results_var['srid']
+                comuneDB = results_var['cod_belf']
+                codice_lotto = results_var['lotto']
+                
                 #problema: a quanto pare il layer deve venir caricato sulla TOC:
                 QgsMapLayerRegistry.instance().addMapLayer(layer_scala)
                 self.iface.legendInterface().setLayerVisible(layer_scala, False)
@@ -3558,13 +3566,7 @@ PFS: %(id_pfs)s"""
                 
                 epsg_srid = int(crs.postgisSrid())
                 
-                #recupero alcune variabili dal progetto:
-                query_var = """SELECT cod_belf, lotto, srid FROM %s.variabili_progetto_return LIMIT 1;""" % (schemaDB)
-                cur.execute(query_var)
-                results_var = cur.fetchone()
-                epsg_srid_var = results_var['srid']
-                comuneDB = results_var['cod_belf']
-                codice_lotto = results_var['lotto']
+                '''COMMENTO PER VEDERE SE FUNZIONA COSI IL CARICAMENTO SENZA CONTROLLI
                 
                 #CONTROLLO SRID:
                 if (epsg_srid_var != epsg_srid):
@@ -3583,7 +3585,7 @@ PFS: %(id_pfs)s"""
                 dest_point_type = results_point['geomtype']
                 if (dest_point_type=='ST_Point'):
                     options['forceSinglePartGeometryType'] = True
-                
+                '''
                 #import shp su DB:
                 error = QgsVectorLayerImport.importLayer(layer_loaded, uri, "postgres", crs, False, False, options)
                 #TypeError: QgsVectorLayerImport.importLayer(QgsVectorLayer, QString uri, QString providerKey, QgsCoordinateReferenceSystem destCRS, bool onlySelected=False, bool skipAttributeCreation=False, dict-of-QString-QVariant options=None, QProgressDialog progress=None)

@@ -195,6 +195,42 @@ EXCEPTION WHEN others THEN
       RAISE NOTICE 'Error message: %', SQLERRM;
 END;
 
+/* nuove colonne - da richiesta di Paolo Gatti e Andrea - 21 ott 2017*/
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo
+ADD COLUMN cavi_pr integer DEFAULT 0,
+ADD COLUMN cavi_bh integer DEFAULT 0,
+ADD COLUMN cavi_cd integer DEFAULT 0;', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo
+ADD COLUMN tot_cavi integer DEFAULT 0,
+ADD COLUMN tot_cavi1 integer DEFAULT 0,
+ADD COLUMN tot_cavi2 integer DEFAULT 0,
+ADD COLUMN tot_cavicd integer DEFAULT 0;', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo DROP COLUMN IF EXISTS costr_mt;', schemaname);
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo DROP COLUMN IF EXISTS lunghezza1;', schemaname);
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo DROP COLUMN IF EXISTS lunghezz_1;', schemaname);
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo DROP COLUMN IF EXISTS matricola;', schemaname);
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo DROP COLUMN IF EXISTS produttore;', schemaname);
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo DROP COLUMN IF EXISTS seriale;', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+/* fine mdifiche richieste da gatti - mail 21 ott 2017*/
+
+
 BEGIN
 EXECUTE format('ALTER TABLE IF EXISTS %s.giunti
 ADD COLUMN wo varchar(6),
