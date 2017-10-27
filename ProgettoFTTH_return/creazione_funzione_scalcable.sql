@@ -43,8 +43,6 @@ INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,po
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 '37-004-RAMO_BT_-_CAVO_AEREO',NULL,NULL,NULL,'aereo','graffettato','no');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
-'37-004-RAMO_BT_-_CAVO_AEREO_PTA',NULL,NULL,NULL,'aereo','graffettato','no');
-INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'CIVICO-NODO',NULL,NULL,NULL,NULL,NULL,NULL);
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'CIVICO-PTA',NULL,NULL,NULL,NULL,NULL,NULL);
@@ -61,19 +59,13 @@ INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,po
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'ILLUMINAZIONE PUBBLICA',NULL,'singolo','10/12','interrato','in tubo','no');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
-'ILLUMINAZIONE PUBBLICA AEREA NUDA',NULL,NULL,NULL,'aereo','in tubo','no');
-INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'MINITRINCEA','minitrincea','fender','10/14','interrato','in tubo','si');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'RACCORDO',NULL,'singolo','10/12','interrato','in tubo','si');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'RAMO_BT_-_PALO_AEREO',NULL,NULL,NULL,'aereo','tesato','no');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
-'RAMO_BT_-_PALO_AEREO_PTA',NULL,NULL,NULL,NULL,'tesato','no');
-INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'TRINCEA NORMALE','scavo tradizionale','fender','10/14','interrato','in tubo','si');
-INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
-'TRINCEA NORMALE_ATT','scavo tradizionale','fender','10/12','interrato','in tubo','si');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'TRINCEA NORMALE_PTA',NULL,'fender','10/14','interrato','in tubo','si');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
@@ -83,7 +75,23 @@ INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,po
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 NULL,NULL,NULL,NULL,NULL,'in tubo','no');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
-'NODIG','No-dig','bandle','10/14','interrato','in tubo','si');
+'ILLUMINAZIONE PUBBLICA AEREA NUDA',NULL,NULL,NULL,'aereo','tesato','no');
+INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
+'TRINCEA NORMALE_ATT','scavo tradizionale','fender','10/14','interrato','in tubo','si');
+INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
+'NODIG','No-dig','fender','10/14','interrato','in tubo','si');
+INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
+'RETELIT',NULL,'singolo','10/12','interrato','in tubo','no');
+INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
+'FO COM',NULL,'singolo','10/12','interrato','in tubo','no');
+INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
+'TIM','','singolo','10/12','interrato','in tubo','no');
+INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
+'BT ENIA',NULL,'singolo','10/12','interrato','in tubo','no');
+INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
+'LEPIDA',NULL,'singolo','10/12','interrato','in tubo','no');
+INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
+'ACANTO',NULL,'singolo','10/12','interrato','in tubo','no');
 
 
 EXECUTE 'SET search_path = ' || quote_ident(schemaname) || ', public, pg_catalog;';
@@ -185,6 +193,13 @@ UPDATE cavo
 SET n_mtubo = '10x7'
 WHERE codice_inf IN ('MINITRINCEA', 'TRINCEA NORMALE', 'NODIG') AND CAST(n_mt_occ as integer) between 64 and 70;
 
+UPDATE cavo
+SET n_tubi = 3
+WHERE codice_inf = 'TRINCEA NORMALE_ATT';
+
+UPDATE cavo
+SET d_tubi = 50
+WHERE codice_inf = 'TRINCEA NORMALE_ATT';
 
 RAISE NOTICE 'calcolo sui campi di cavo ultimato';
 
