@@ -3508,7 +3508,9 @@ PFS: %(id_pfs)s"""
             #l'utente HA CLICCATO YES, continuo:
             layer_scala = QgsVectorLayer(scala_shp, self.LAYER_NAME['SCALA_append'], "ogr")
             #lista_layer_to_load=[layer_scala]
-            #QgsMapLayerRegistry.instance().addMapLayers(lista_layer_to_load)
+            #problema: il layer deve venir caricato sulla TOC per esser importato sul DB:
+            QgsMapLayerRegistry.instance().addMapLayer(layer_scala)
+            self.iface.legendInterface().setLayerVisible(layer_scala, False)
             #Li spengo di default e li importo direttamente sul DB:
             crs = None
             test_conn = None
@@ -3536,10 +3538,7 @@ PFS: %(id_pfs)s"""
                 epsg_srid_var = results_var['srid']
                 comuneDB = results_var['cod_belf']
                 codice_lotto = results_var['lotto']
-                
-                #problema: a quanto pare il layer deve venir caricato sulla TOC:
-                QgsMapLayerRegistry.instance().addMapLayer(layer_scala)
-                self.iface.legendInterface().setLayerVisible(layer_scala, False)
+
                 layer_loaded = layer_scala
                 layer_loaded_geom = layer_loaded.wkbType()
                 uri = None
@@ -3586,6 +3585,7 @@ PFS: %(id_pfs)s"""
                 if (dest_point_type=='ST_Point'):
                     options['forceSinglePartGeometryType'] = True
                 '''
+                
                 #import shp su DB:
                 error = QgsVectorLayerImport.importLayer(layer_loaded, uri, "postgres", crs, False, False, options)
                 #TypeError: QgsVectorLayerImport.importLayer(QgsVectorLayer, QString uri, QString providerKey, QgsCoordinateReferenceSystem destCRS, bool onlySelected=False, bool skipAttributeCreation=False, dict-of-QString-QVariant options=None, QProgressDialog progress=None)
