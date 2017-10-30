@@ -16,7 +16,7 @@
   <widget class="QDialogButtonBox" name="button_box">
    <property name="geometry">
     <rect>
-     <x>300</x>
+     <x>260</x>
      <y>250</y>
      <width>81</width>
      <height>31</height>
@@ -111,25 +111,11 @@
     <set>Qt::TextBrowserInteraction</set>
    </property>
   </widget>
-  <widget class="QPushButton" name="help_btn">
-   <property name="geometry">
-    <rect>
-     <x>140</x>
-     <y>250</y>
-     <width>101</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Online manual</string>
-   </property>
-  </widget>
   <zorder>layoutWidget</zorder>
   <zorder>button_box</zorder>
   <zorder>label</zorder>
   <zorder>label_version</zorder>
   <zorder>label_version_2</zorder>
-  <zorder>help_btn</zorder>
  </widget>
  <resources/>
  <connections>

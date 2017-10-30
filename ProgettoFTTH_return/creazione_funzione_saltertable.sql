@@ -194,7 +194,7 @@ END;
 
 BEGIN
 EXECUTE format('ALTER TABLE IF EXISTS %s.cavo
-ADD COLUMN n_mt_occ_CD character varying(50),
+ADD COLUMN n_mt_occ_cd character varying(50),
 ADD COLUMN n_mt_occ_1 character varying(50),
 ADD COLUMN n_mt_occ_2 character varying(50);', schemaname);
 EXCEPTION WHEN others THEN

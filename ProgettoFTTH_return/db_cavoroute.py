@@ -1426,7 +1426,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     
     '''
     #NUOVA RISCHIESTA MAIL GATTI del 24 Ottobre 2017: ricalcolo f_192 e altri campi in base ad altri criteri - DA SVILUPPARE E APPROFONDIRE!!
-    #DUBBI: ma queste somme come si fanno esattamente?? cioe tot_caci2 cosa vuol dire che sommo, cosa sommo se quei campi sono ZERO??
+    #DUBBI: ma queste somme come si fanno esattamente?? cioe tot_cavi2 cosa vuol dire che sommo, cosa sommo se quei campi sono ZERO??
     #"Tot_cavi1" = sommi i cavi che hanno "CAVI_PR" <> 0 OR "CAVI_BH" <> 0 OR "CAVI_CD" <> 0
     #"Tot_cavi2" = sommi i cavi dove "CAVI_PR" = 0 AND "CAVI_BH" = 0
     #"Tot_caviCD" = sommi i cavi dove "CAVI_CD" <> 0
@@ -1435,6 +1435,32 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     
     query_codice_ins = "UPDATE %s.cavo SET f_192 = cavi_pr + cavi_bh + cavi_cd;" % (theSchema)
     cur_update.execute(query_codice_ins)
+    test_conn.commit()
+    
+    query_flag_no = "UPDATE %s.cavo SET n_mt_occ = (tot_cavi1 + tot_cavi2 + tot_cavicd + 2)::text || 'x7', n_mt_occ_1=0, n_mt_occ_2=0, n_mt_occ_cd=0 WHERE UPPER(flag_posa) LIKE '%NO%';" % (theSchema)
+    cur_update.execute(query_flag_no)
+    test_conn.commit()
+    
+    query_flag_si = """UPDATE %s.cavo SET 
+        n_mt_occ_1 = CASE
+        WHEN tot_cavi1+tot_cavicd < 6 THEN '1x7'
+        WHEN tot_cavi1+tot_cavicd < 13 THEN '2x7'
+        ELSE '3x7'
+        END,
+        n_mt_occ_2 = CASE
+        WHEN tot_cavi2+2 < 6 THEN '1x7'
+        WHEN tot_cavi2+2 < 13 THEN '2x7'
+        ELSE '3x7'
+        END
+    WHERE UPPER(flag_posa) LIKE '%SI%';""" % (theSchema)
+    cur_update.execute(query_flag_si)
+    test_conn.commit()
+    
+    #in questo caso per compilare n_mt_occ prendo la prima cifra dei campi n_mt_occ_1 e n_mt_occ_2:
+    query_flag_si2 = """UPDATE %s.cavo SET 
+        n_mt_occ = (substr(n_mt_occ_1, 1, 1)::integer + substr(n_mt_occ_2, 1, 1)::integer) || 'x7'
+    WHERE UPPER(flag_posa) LIKE '%SI%';""" % (theSchema)
+    cur_update.execute(query_flag_si2)
     
     test_conn.commit()
     '''

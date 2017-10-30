@@ -245,7 +245,7 @@ EXCEPTION WHEN others THEN
 END;
 
 BEGIN
-EXECUTE format('UPDATE %s.%s SET n_ui_originali = n_ui;', schemaname, table_name);
+EXECUTE format('UPDATE %s.%s SET n_ui_originali = n_ui WHERE n_ui_originali IS NULL;', schemaname, table_name);
 EXCEPTION WHEN others THEN
       RAISE NOTICE 'Error code: %', SQLSTATE;
       RAISE NOTICE 'Error message: %', SQLERRM;

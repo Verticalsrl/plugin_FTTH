@@ -87,7 +87,7 @@ import pgRoutingLayer_utils as Utils
 import psycopg2
 import psycopg2.extras
 #Per aprire link web
-import webbrowser
+#import webbrowser
 
 import db_compare as db_compare
 import db_solid as db_solid
@@ -329,7 +329,8 @@ class ProgettoFTTH:
         #QObject.connect(self.dlg_help.help_button, SIGNAL("clicked()"), self.help_open)
         #self.dlg_help.help_button.connect(self.help_open)
         #self.dlg_help.connect(help_button, SIGNAL("clicked()"), self.help_open)
-        self.dlg_help.help_btn.clicked.connect(self.help_open)
+        #Richiesta di Andrea del 17/10/2017 da GitHub: rimuovo il pulsante che rimanda ad un sito esterno:
+        #self.dlg_help.help_btn.clicked.connect(self.help_open)
         
         #Popolo il menu a tendina con i layer da associare:
         for frompoint in self.FROM_POINT:
@@ -344,11 +345,13 @@ class ProgettoFTTH:
     def pageProcessed(self, progressBar):
         """Increment the page progressbar."""
         progressBar.setValue(progressBar.value() + 1)
-        
+    
+    '''Richiesta di Andrea del 17/10/2017 da GitHub: rimuovo il pulsante che rimanda ad un sito esterno:
     def help_open(self):
         #QMessageBox.information(self.dlg_help, self.dlg_help.windowTitle(), "Ciao help!")
         url = "http://webgis.map-hosting.it/enel/Help%20Qgis%20App.pdf"
         webbrowser.open(url, new=0, autoraise=True)
+    '''
     
     def toggle_no_import(self):
         tab_attivo = self.dlg_config.no_import.isChecked()
