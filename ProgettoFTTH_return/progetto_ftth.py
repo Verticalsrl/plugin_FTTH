@@ -1749,7 +1749,10 @@ PFS: %(id_pfs)s"""
     #porto tutto sotto un unico pulsante scala_pd
     #def associa_giunto_pd(self):
     #    self.associa_punti_origine('GIUNTO', 'PD')
-        
+    
+    def associa_pta_pfs(self):
+        self.associa_punti_origine('PTA', 'PFS')
+    
     def associa_pd_pd(self):
         self.associa_punti_origine_gg('PD_F', 'PD')
     
@@ -1971,6 +1974,18 @@ PFS: %(id_pfs)s"""
                     elif ( i['id_g_ref'] ):
                         QMessageBox.information(self.dock, self.dock.windowTitle(),
                         "Non e' possibile associare un giunto gia' associato a un altro giunto! Verra' deselezionato e si continueranno ad analizzare gli altri elementi selezionati")
+                        layer.deselect( i['gid'] )
+                        continue
+                #Nel caso di PTA-PFS chiaramente il PTA non deve gia' essere collegato a un PFS:
+                if (chiave_origine=='PTA' and chiave_dest=='PFS' and layername==self.LAYER_NAME['GIUNTO']):
+                    if ( i['id_pfs'] ):
+                        QMessageBox.information(self.dock, self.dock.windowTitle(),
+                        "Non e' possibile associare un giunto gia' associato a un PFS! Verra' deselezionato e si continueranno ad analizzare gli altri elementi selezionati")
+                        layer.deselect( i['gid'] )
+                        continue
+                    if ( str(i['tipo_giunt']).lower()!='pta' ):
+                        QMessageBox.critical(self.dock, self.dock.windowTitle(),
+                            "Hai selezionato un elemento di origine che non e' PTA o che non e' stato definito nel campo tipo_giunt. Verra' deselezionato e si continueranno ad analizzare gli altri elementi selezionati")
                         layer.deselect( i['gid'] )
                         continue
                 #Se parto da PD non deve avere PFS ne' essere connesso ad altro PD:
@@ -3328,6 +3343,7 @@ PFS: %(id_pfs)s"""
         #QObject.connect(self.dockwidget.giunto_giunto_btn, SIGNAL("clicked()"), self.associa_giunto_giunto)
         QObject.connect(self.dockwidget.giunto_giunto_dev_btn, SIGNAL("clicked()"), self.associa_giunto_giunto_dev)
         #QObject.connect(self.dockwidget.giunto_pd_btn, SIGNAL("clicked()"), self.associa_giunto_pd)
+        QObject.connect(self.dockwidget.pta_pfs_btn, SIGNAL("clicked()"), self.associa_pta_pfs)
         QObject.connect(self.dockwidget.pd_pd_btn, SIGNAL("clicked()"), self.associa_pd_pd)
         QObject.connect(self.dockwidget.pd_pfs_btn, SIGNAL("clicked()"), self.associa_pd_pfs)
         QObject.connect(self.dockwidget.pfs_pfp_btn, SIGNAL("clicked()"), self.associa_pfs_pfp)

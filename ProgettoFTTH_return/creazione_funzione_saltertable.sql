@@ -72,6 +72,13 @@ EXCEPTION WHEN others THEN
 END;
 
 BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN codice_ins character varying(50);', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
 EXECUTE format('ALTER TABLE IF EXISTS %s.cavo ADD COLUMN tipo_pav character varying(50);', schemaname);
 EXCEPTION WHEN others THEN
       RAISE NOTICE 'Error code: %', SQLSTATE;

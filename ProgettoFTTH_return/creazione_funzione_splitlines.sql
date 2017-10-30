@@ -196,7 +196,7 @@ EXECUTE 'ALTER TABLE IF EXISTS cavo_corretto ADD COLUMN gid serial';
 EXECUTE format('INSERT INTO cavo_corretto(gid_old, geom) SELECT gid, ST_Multi(geom) FROM cavo_finale', epsg_srid); --ST_Multi perche' tutto cavoroute si basa su MultiLinestring e non conviene cambiare le procedure a valle in questo momento...
 --EXECUTE 'INSERT INTO cavo_corretto(gid_old, geom) SELECT gid, (ST_Dump(ST_LineMerge(geom))).geom FROM cavo_finale'; --se da problemi con MultiLinestring ritorna a Linestring
 
-EXECUTE 'UPDATE cavo_corretto SET codice_inf = b.codice_inf, tipo_pav=b.tipo_pav, n_mtubo=b.n_mtubo, n_tubi=b.n_tubi, d_tubi=b.d_tubi, libero=b.libero, n_mt_occ=b.n_mt_occ, mod_mtubo=b.mod_mtubo, tipo_minit=b.tipo_minit, tipo_posa=b.tipo_posa, posa_dett=b.posa_dett, flag_posa=b.flag_posa, tipo_scavo=b.tipo_scavo, id_pop_end=b.id_pop_end, cod_belf=b.cod_belf, lotto=b.lotto FROM cavo b WHERE b.gid=cavo_corretto.gid_old';
+EXECUTE 'UPDATE cavo_corretto SET codice_ins = b.codice_ins, codice_inf = b.codice_inf, tipo_pav=b.tipo_pav, n_mtubo=b.n_mtubo, n_tubi=b.n_tubi, d_tubi=b.d_tubi, libero=b.libero, n_mt_occ=b.n_mt_occ, mod_mtubo=b.mod_mtubo, tipo_minit=b.tipo_minit, tipo_posa=b.tipo_posa, posa_dett=b.posa_dett, flag_posa=b.flag_posa, tipo_scavo=b.tipo_scavo, id_pop_end=b.id_pop_end, cod_belf=b.cod_belf, lotto=b.lotto FROM cavo b WHERE b.gid=cavo_corretto.gid_old';
 EXECUTE 'UPDATE cavo_corretto SET length_m = ST_Length(geom)';
 EXECUTE 'UPDATE cavo_corretto SET cod_geom = (''8''::text || lpad(gid::text, 5, ''0''))::integer';
 EXECUTE 'UPDATE cavo_corretto SET id_cavo = cod_belf || lotto || cod_geom::text';

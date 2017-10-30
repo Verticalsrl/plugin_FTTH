@@ -275,7 +275,7 @@ LEFT JOIN
 %(schema)s.pgrvertices_netpoints_array c ON (a.gid = ANY (c.gid_pta))
 LEFT JOIN
 %(schema)s.pgrvertices_netpoints_array d ON (b.gid = ANY (d.gid_pfs))
-WHERE a.id_pfs IS NOT NULL AND a.id_g_ref IS NULL AND c.id_pgr IS NOT NULL AND d.id_pgr IS NOT NULL AND upper(a.tipo_giunt)='PTA';"""
+WHERE a.id_pfs IS NOT NULL AND a.id_pd IS NULL AND a.id_g_ref IS NULL AND c.id_pgr IS NOT NULL AND d.id_pgr IS NOT NULL AND upper(a.tipo_giunt)='PTA';"""
 
 QUERY_GI_PD = """SELECT c.id_pgr AS source, d.id_pgr AS target, a.n_ui FROM %(schema)s.giunti a
 LEFT JOIN
@@ -761,7 +761,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     #        test_conn.close()
     
     try:
-        '''#PTA-PFS:
+        #PTA-PFS:
         id_associazione = 'PTA_PFS'
         dict_null_id[id_associazione] = []
         Utils.logMessage('Inizio routing PTA-PFS')
@@ -819,7 +819,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
 
         #cur_associa_pta_pd.close()
         Utils.logMessage('Fine routing PTA-PFS')
-        '''
+        
         
         #PTA-PD:
         id_associazione = 'PTA_PD'
@@ -1531,6 +1531,18 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
         else:
             Utils.logMessage("SCALA_PFS IDs: OK!")
             
+        if len(dict_null_id['PTA_PFS'])>0:
+            Utils.logMessage("PTA_PFS IDs: ")
+            for PTA_PFS in dict_null_id['PTA_PFS']:
+                query_SCALA_PTA = """SELECT * FROM
+                (SELECT array_to_string(gid_pta, ',') AS id_source FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS source,
+                (SELECT array_to_string(gid_pd, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(PTA_PFS[0]), theSchema, int(PTA_PFS[1]))
+                cur_update.execute(query_SCALA_PTA)
+                for result_SCALA_PTA in cur_update:
+                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+        else:
+            Utils.logMessage("PTA_PFS IDs: OK!")
+        
         if len(dict_null_id['PTA_PD'])>0:
             Utils.logMessage("PTA_PD IDs: ")
             for PTA_PD in dict_null_id['PTA_PD']:
