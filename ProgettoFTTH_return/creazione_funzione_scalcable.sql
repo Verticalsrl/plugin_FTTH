@@ -115,6 +115,15 @@ update cavo
 set n_mt_occ = '0'
 where n_mt_occ IS NULL;
 
+UPDATE cavo
+SET n_mtubo = NULL
+WHERE tipo_posa = 'aereo' AND flag_posa = 'no';
+
+UPDATE cavo
+SET n_mtubo = NULL
+WHERE tipo_posa IS NULL AND flag_posa IS NULL;
+
+/*da mail di gatti del 31 ottobre 2017. cambiano le regole!
 UPDATE cavo 
 SET n_mt_occ = tot_cavi
 WHERE tipo_posa = 'interrato' AND codice_ins IN ('PR','BH','PR+BH') AND tot_cavi = 0;
@@ -143,15 +152,6 @@ WHERE tipo_posa = 'aereo' AND flag_posa = 'no' AND tot_cavi >= 0;
 UPDATE cavo
 SET n_mt_occ = 0
 WHERE tipo_posa IS NULL AND flag_posa IS NULL AND tot_cavi >= 0;
-
-
-UPDATE cavo
-SET n_mtubo = NULL
-WHERE tipo_posa = 'aereo' AND flag_posa = 'no';
-
-UPDATE cavo
-SET n_mtubo = NULL
-WHERE tipo_posa IS NULL AND flag_posa IS NULL;
 
 UPDATE cavo
 SET n_mtubo = '1x7'
@@ -192,6 +192,11 @@ WHERE codice_inf IN ('MINITRINCEA', 'TRINCEA NORMALE', 'NODIG') AND CAST(n_mt_oc
 UPDATE cavo
 SET n_mtubo = '10x7'
 WHERE codice_inf IN ('MINITRINCEA', 'TRINCEA NORMALE', 'NODIG') AND CAST(n_mt_occ as integer) between 64 and 70;
+*/
+
+/* da mail di gatti del 31 ottobre 2017: nuove regole:*/
+--le calcolo su db_cavoroute.py
+
 
 UPDATE cavo
 SET n_tubi = 3
