@@ -215,10 +215,25 @@ END;
 
 BEGIN
 EXECUTE format('ALTER TABLE IF EXISTS %s.cavo
-ADD COLUMN tot_cavi integer DEFAULT 0,
+ADD COLUMN tot_cavi integer DEFAULT 0;', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo
 ADD COLUMN tot_cavi1 integer DEFAULT 0,
 ADD COLUMN tot_cavi2 integer DEFAULT 0,
 ADD COLUMN tot_cavicd integer DEFAULT 0;', schemaname);
+EXCEPTION WHEN others THEN
+      RAISE NOTICE 'Error code: %', SQLSTATE;
+      RAISE NOTICE 'Error message: %', SQLERRM;
+END;
+
+BEGIN
+EXECUTE format('ALTER TABLE IF EXISTS %s.cavo
+ADD COLUMN cavi2 integer DEFAULT 0;', schemaname);
 EXCEPTION WHEN others THEN
       RAISE NOTICE 'Error code: %', SQLSTATE;
       RAISE NOTICE 'Error message: %', SQLERRM;

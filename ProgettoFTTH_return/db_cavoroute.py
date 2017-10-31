@@ -1417,26 +1417,68 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     #        test_conn.close()
 
     
+    '''vecchia procedura sostituita ad mail del 31 ottobre 2017
     #NOTA MAIL GATTI del 20-21-23 Febbraio 2017: devo aggiungere delle f_192 in base al contenuto del campo codice_ins:
     #query_codice_ins = "UPDATE %s.cavo SET f_192 = CASE WHEN upper(codice_ins)='PR' THEN f_192+1 WHEN upper(codice_ins)='PR+BH' THEN f_192+2 ELSE f_192 END;" % (theSchema)
     #NOTA MAIL GATTI del 19 Aprile 2017: aggiungo ancora UN f_192 se solo BH:
     query_codice_ins = "UPDATE %s.cavo SET f_192 = CASE WHEN upper(codice_ins)='PR' THEN f_192+1 WHEN upper(codice_ins)='PR+BH' THEN f_192+2 WHEN upper(codice_ins)='BH' THEN f_192+1 ELSE f_192 END;" % (theSchema)
     cur_update.execute(query_codice_ins)
     
-    
+    #Restano ancora da calcolare i cavi e le fibre:
+    query_update_cavi = "UPDATE %s.cavo SET tot_cavi=f_4+f_12+f_24+f_48+f_72+f_96+f_144+f_192;" % (theSchema)
+    cur_update.execute(query_update_cavi)   
     '''
     #NUOVA RISCHIESTA MAIL GATTI del 24 Ottobre 2017: ricalcolo f_192 e altri campi in base ad altri criteri - DA SVILUPPARE E APPROFONDIRE!!
-    #DUBBI: ma queste somme come si fanno esattamente?? cioe tot_cavi2 cosa vuol dire che sommo, cosa sommo se quei campi sono ZERO??
-    #"Tot_cavi1" = sommi i cavi che hanno "CAVI_PR" <> 0 OR "CAVI_BH" <> 0 OR "CAVI_CD" <> 0
-    #"Tot_cavi2" = sommi i cavi dove "CAVI_PR" = 0 AND "CAVI_BH" = 0
-    #"Tot_caviCD" = sommi i cavi dove "CAVI_CD" <> 0
+    #Da mail di Gatti del 31 Ottobre 2017: tot_cavi1, tot_cavi2, tot_cavicd: messi a mano dal progettista
+    #Da mail di Gatti del 31 Ottobre 2017: "cavi_pr", "cavi_bh", "cavi_cd": messi a mano dal progettista
     query_tot_cavi = "UPDATE %s.cavo SET tot_cavi = tot_cavi1 + tot_cavi2 + tot_cavicd;" % (theSchema)
     cur_update.execute(query_tot_cavi)
+    test_conn.commit()
     
     query_codice_ins = "UPDATE %s.cavo SET f_192 = cavi_pr + cavi_bh + cavi_cd;" % (theSchema)
     cur_update.execute(query_codice_ins)
     test_conn.commit()
     
+    query_cavi2 = """UPDATE %s.cavo SET cavi2 = CASE
+        WHEN (cavi_pr + cavi_bh + cavi_cd)=0 THEN tot_cavi
+        WHEN (cavi_pr + cavi_bh + cavi_cd)>0 THEN f_4 + f_12  + f_24  + f_48  + f_72  + f_96  + f_144
+    END;""" % (theSchema)
+    cur_update.execute(query_cavi2)
+    test_conn.commit()
+    
+    query_flag_no = "UPDATE %s.cavo SET n_mt_occ = tot_cavi+2 WHERE flag_posa ~* '.*no.*' AND tipo_posa ~* '.*interr.*';" % (theSchema)
+    cur_update.execute(query_flag_no)
+    test_conn.commit()
+    
+    query_flag_si = """UPDATE %s.cavo SET 
+        n_mt_occ_1 = CASE
+        WHEN cavi_pr+cavi_bh = 14 THEN cavi_pr+cavi_bh +4
+        WHEN cavi_pr+cavi_bh > 8 THEN cavi_pr+cavi_bh +3
+        WHEN cavi_pr+cavi_bh > 4 THEN cavi_pr+cavi_bh +2
+        WHEN cavi_pr+cavi_bh >0 THEN cavi_pr+cavi_bh +1
+        ELSE 0
+        END,
+        n_mt_occ_2 = cavi2 + 2,
+        n_mt_occ_cd = CASE
+        WHEN cavi_cd = 14 THEN cavi_cd +4
+        WHEN cavi_cd > 8 THEN cavi_cd +3
+        WHEN cavi_cd > 4 THEN cavi_cd +2
+        WHEN cavi_cd > 0 THEN cavi_cd +1
+        ELSE 0
+        END
+    WHERE flag_posa ~* '.*si.*';""" % (theSchema)
+    cur_update.execute(query_flag_si)
+    test_conn.commit()
+    
+    query_flag_si2 = """UPDATE %s.cavo SET 
+        n_mt_occ = n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int,
+        n_mtubo = ceil((n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int)::double precision / 7) || 'x7'
+    WHERE flag_posa ~* '.*si.*';""" % (theSchema)
+    cur_update.execute(query_flag_si2)    
+    test_conn.commit()
+    
+    '''
+    #vecchie query della mail del 24 ottobre 2017 ridefinite dalla mail del 31 ottobre 2017:
     query_flag_no = "UPDATE %s.cavo SET n_mt_occ = (tot_cavi1 + tot_cavi2 + tot_cavicd + 2)::text || 'x7', n_mt_occ_1=0, n_mt_occ_2=0, n_mt_occ_cd=0 WHERE UPPER(flag_posa) LIKE '%NO%';" % (theSchema)
     cur_update.execute(query_flag_no)
     test_conn.commit()
@@ -1460,15 +1502,11 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     query_flag_si2 = """UPDATE %s.cavo SET 
         n_mt_occ = (substr(n_mt_occ_1, 1, 1)::integer + substr(n_mt_occ_2, 1, 1)::integer) || 'x7'
     WHERE UPPER(flag_posa) LIKE '%SI%';""" % (theSchema)
-    cur_update.execute(query_flag_si2)
-    
+    cur_update.execute(query_flag_si2)    
     test_conn.commit()
     '''
-
     
     #Restano ancora da calcolare i cavi e le fibre:
-    query_update_cavi = "UPDATE %s.cavo SET tot_cavi=f_4+f_12+f_24+f_48+f_72+f_96+f_144+f_192;" % (theSchema)
-    cur_update.execute(query_update_cavi)
     query_update_fibre = "UPDATE %s.cavo SET tot_fibre=(f_4*4)+(f_12*12)+(f_24*24)+(f_48*48)+(f_72*72)+(f_96*96)+(f_144*144)+(f_192*192);" % (theSchema)
     cur_update.execute(query_update_fibre)
     
