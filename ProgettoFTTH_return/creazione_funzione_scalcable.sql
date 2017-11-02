@@ -27,13 +27,13 @@ BEGIN
 DROP TABLE IF EXISTS public.nuova_codifica;
 
 CREATE TABLE public.nuova_codifica (
-	codice_inf varchar(50) NULL,
-	tipo_scavo varchar(50) NULL,
-	tipo_minit varchar(50) NULL,
-	mod_mtubo varchar(50) NULL,
-	posa varchar(50) NULL,
-	posa_dett varchar(50) NULL,
-	flag_posa varchar(5) NULL
+    codice_inf varchar(50) NULL,
+    tipo_scavo varchar(50) NULL,
+    tipo_minit varchar(50) NULL,
+    mod_mtubo varchar(50) NULL,
+    posa varchar(50) NULL,
+    posa_dett varchar(50) NULL,
+    flag_posa varchar(5) NULL
 ) ;
 
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
@@ -60,8 +60,9 @@ INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,po
 'ILLUMINAZIONE PUBBLICA',NULL,'singolo','10/12','interrato','in tubo','no');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'MINITRINCEA','minitrincea','fender','10/14','interrato','in tubo','si');
-INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
-'RACCORDO',NULL,'singolo','10/12','interrato','in tubo','si');
+--INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES ('RACCORDO',NULL,'singolo','10/12','interrato','in tubo','si');
+--modificato RACCORDO da mail Gatti 31 ottobre 2017
+INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES ('RACCORDO',NULL,NULL,NULL,NULL,NULL,NULL);
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'RAMO_BT_-_PALO_AEREO',NULL,NULL,NULL,'aereo','tesato','no');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
@@ -70,8 +71,10 @@ INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,po
 'TRINCEA NORMALE_PTA',NULL,'fender','10/14','interrato','in tubo','si');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'VENIS',NULL,'singolo','10/12','interrato','in tubo','no');
+--INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES ('WIND',NULL,NULL,'10/12','interrato','in tubo','no');
+--modificato WIND da mail Gatti 31 ottobre 2017
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
-'WIND',NULL,NULL,'10/12','interrato','in tubo','no');
+'WIND',NULL,'singolo','10/12','interrato','in tubo','no');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 NULL,NULL,NULL,NULL,NULL,'in tubo','no');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
@@ -85,7 +88,7 @@ INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,po
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'FO COM',NULL,'singolo','10/12','interrato','in tubo','no');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
-'TIM','','singolo','10/12','interrato','in tubo','no');
+'TIM',NULL,'singolo','10/12','interrato','in tubo','no');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'BT ENIA',NULL,'singolo','10/12','interrato','in tubo','no');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
@@ -115,6 +118,43 @@ update cavo
 set n_mt_occ = '0'
 where n_mt_occ IS NULL;
 
+
+--nuove regole mail Gatti 31 ottobre 2017:
+UPDATE cavo SET
+    n_mt_occ = CASE
+    WHEN tot_cavi=0 THEN 0
+    ELSE tot_cavi+2
+    END
+WHERE flag_posa ~* '.*no.*' AND tipo_posa ~* '.*interr.*';
+
+UPDATE cavo SET 
+    n_mt_occ_1 = CASE
+    WHEN cavi_pr+cavi_bh = 14 THEN cavi_pr+cavi_bh +4
+    WHEN cavi_pr+cavi_bh > 8 THEN cavi_pr+cavi_bh +3
+    WHEN cavi_pr+cavi_bh > 4 THEN cavi_pr+cavi_bh +2
+    WHEN cavi_pr+cavi_bh >0 THEN cavi_pr+cavi_bh +1
+    ELSE 0
+    END,
+    n_mt_occ_2 = CASE
+    WHEN cavi2=0 THEN 0
+    ELSE cavi2 + 2
+    END,
+    n_mt_occ_cd = CASE
+    WHEN cavi_cd = 14 THEN cavi_cd +4
+    WHEN cavi_cd > 8 THEN cavi_cd +3
+    WHEN cavi_cd > 4 THEN cavi_cd +2
+    WHEN cavi_cd > 0 THEN cavi_cd +1
+    ELSE 0
+    END
+WHERE flag_posa ~* '.*si.*';
+
+UPDATE cavo SET 
+    n_mt_occ = n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int,
+    n_mtubo = ceil((n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int)::double precision / 7) || 'x7'
+WHERE flag_posa ~* '.*si.*';
+--fine nuove regole mai Gatti 31 ottobre 2017
+
+
 UPDATE cavo
 SET n_mtubo = NULL
 WHERE tipo_posa = 'aereo' AND flag_posa = 'no';
@@ -122,6 +162,7 @@ WHERE tipo_posa = 'aereo' AND flag_posa = 'no';
 UPDATE cavo
 SET n_mtubo = NULL
 WHERE tipo_posa IS NULL AND flag_posa IS NULL;
+
 
 /*da mail di gatti del 31 ottobre 2017. cambiano le regole!
 UPDATE cavo 

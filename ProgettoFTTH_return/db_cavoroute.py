@@ -1446,37 +1446,6 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     cur_update.execute(query_cavi2)
     test_conn.commit()
     
-    query_flag_no = "UPDATE %s.cavo SET n_mt_occ = tot_cavi+2 WHERE flag_posa ~* '.*no.*' AND tipo_posa ~* '.*interr.*';" % (theSchema)
-    cur_update.execute(query_flag_no)
-    test_conn.commit()
-    
-    query_flag_si = """UPDATE %s.cavo SET 
-        n_mt_occ_1 = CASE
-        WHEN cavi_pr+cavi_bh = 14 THEN cavi_pr+cavi_bh +4
-        WHEN cavi_pr+cavi_bh > 8 THEN cavi_pr+cavi_bh +3
-        WHEN cavi_pr+cavi_bh > 4 THEN cavi_pr+cavi_bh +2
-        WHEN cavi_pr+cavi_bh >0 THEN cavi_pr+cavi_bh +1
-        ELSE 0
-        END,
-        n_mt_occ_2 = cavi2 + 2,
-        n_mt_occ_cd = CASE
-        WHEN cavi_cd = 14 THEN cavi_cd +4
-        WHEN cavi_cd > 8 THEN cavi_cd +3
-        WHEN cavi_cd > 4 THEN cavi_cd +2
-        WHEN cavi_cd > 0 THEN cavi_cd +1
-        ELSE 0
-        END
-    WHERE flag_posa ~* '.*si.*';""" % (theSchema)
-    cur_update.execute(query_flag_si)
-    test_conn.commit()
-    
-    query_flag_si2 = """UPDATE %s.cavo SET 
-        n_mt_occ = n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int,
-        n_mtubo = ceil((n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int)::double precision / 7) || 'x7'
-    WHERE flag_posa ~* '.*si.*';""" % (theSchema)
-    cur_update.execute(query_flag_si2)    
-    test_conn.commit()
-    
     '''
     #vecchie query della mail del 24 ottobre 2017 ridefinite dalla mail del 31 ottobre 2017:
     query_flag_no = "UPDATE %s.cavo SET n_mt_occ = (tot_cavi1 + tot_cavi2 + tot_cavicd + 2)::text || 'x7', n_mt_occ_1=0, n_mt_occ_2=0, n_mt_occ_cd=0 WHERE UPPER(flag_posa) LIKE '%NO%';" % (theSchema)
