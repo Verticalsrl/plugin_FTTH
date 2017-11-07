@@ -3547,10 +3547,10 @@ PFS: %(id_pfs)s"""
                 #cur = test_conn.cursor()
                 cur = test_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 
-                #ripulisco il DB se esiste gia' una tabella scala_append
+                '''#ripulisco il DB se esiste gia' una tabella scala_append
                 query_rem = "DROP TABLE IF EXISTS %s.%s;" % (schemaDB, self.LAYER_NAME['SCALA_append'])
                 cur.execute(query_rem)
-                test_conn.commit()
+                test_conn.commit()'''
                 
                 #recupero alcune variabili dal progetto:
                 query_var = """SELECT cod_belf, lotto, srid FROM %s.variabili_progetto_return LIMIT 1;""" % (schemaDB)
@@ -3586,8 +3586,6 @@ PFS: %(id_pfs)s"""
                 
                 epsg_srid = int(crs.postgisSrid())
                 
-                '''COMMENTO PER VEDERE SE FUNZIONA COSI IL CARICAMENTO SENZA CONTROLLI
-                
                 #CONTROLLO SRID:
                 if (epsg_srid_var != epsg_srid):
                     msg.setText("Gli SRID delle scale non corrispondono, impossibile proseguire.")
@@ -3605,7 +3603,6 @@ PFS: %(id_pfs)s"""
                 dest_point_type = results_point['geomtype']
                 if (dest_point_type=='ST_Point'):
                     options['forceSinglePartGeometryType'] = True
-                '''
                 
                 #import shp su DB:
                 error = QgsVectorLayerImport.importLayer(layer_scala, uri, "postgres", crs, False, False, options)
