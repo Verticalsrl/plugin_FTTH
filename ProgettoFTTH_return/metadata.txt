@@ -14,7 +14,7 @@ description=Associazione contatori - PD - giunti - PFS - PFP
 version=5.2.5
 author=A.R.Gaeta/Vertical Srl
 email=info@vertical.digital
-release_date=2017/01/08
+release_date=2017/11/08
 
 about=Questo plugin permette di gestire la progettazione della rete ENEL-FTTH
 
