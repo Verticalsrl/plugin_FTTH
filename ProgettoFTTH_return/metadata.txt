@@ -11,10 +11,10 @@ name=ProgettoFTTH_return
 qgisMinimumVersion=2.14
 qgisMaximumVersion=2.14
 description=Associazione contatori - PD - giunti - PFS - PFP
-version=5.2.4
+version=5.2.5
 author=A.R.Gaeta/Vertical Srl
 email=info@vertical.digital
-release_date=2017/01/07
+release_date=2017/01/08
 
 about=Questo plugin permette di gestire la progettazione della rete ENEL-FTTH
 
@@ -32,6 +32,7 @@ changelog=
 		  - calcoli della primaria su n_mt_occ_XXX spostati nella funzione s_calc_cable
 		  - modificati i parametri WIND e RACCORDO nella tabella di decodifica definita nella funzione s_calc_cable
 		  - rivista la funzione append_scala su progetto_ftth.py in cui non elimino piu' la tabella ma sfrutto l'opzione overwrite
+		  - aggiunta funzione append_scala_DbManager riscritta cosniderando che le nuove scale da appendere siano gia' state precedentemene importate con DbManager in modo tale da bypassare eventuali errori dati dalla procedura classica
 	5.1:  - per importare nuove scale eseguo controllo su tipo geometria Point/MultiPoint cosi da non generare futili conflitti
 		  - modificata maschera "config sezione C" per rendere piu' esplicite le uguaglianze fatte in termini di vincoli sulle UI per le connessioni a cascata SCALA_SCALA e le fibre per altre varie associazioni
 		  - in particolare modificata l'associazione delle UI per le SCALE prendendole dal GIUNTO

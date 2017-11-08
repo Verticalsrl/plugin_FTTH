@@ -295,6 +295,7 @@ class ProgettoFTTH:
         
         self.dlg_append.shpBrowse_btn.clicked.connect(self.select_shp_scala_append)
         self.dlg_append.importBtn.clicked.connect(self.append_scala)
+        self.dlg_append.importBtn_DbManager.clicked.connect(self.append_scala_DbManager)
         
         #AZIONO PULSANTE PERSONALIZZATO:
         self.dlg_config.aggiorna_variabiliBtn.clicked.connect(self.inizializzaDB)
@@ -3490,6 +3491,144 @@ PFS: %(id_pfs)s"""
         else:
             self.dlg_append.importBtn.setEnabled(False);
     
+    def append_scala_DbManager(self):
+        #in questo caso do per assodato che le nuove SCALE siano gia state caricate su DB con DbManager in una tabella chiamata come LAYER_NAME['SCALA_append'], questo perche' la funzione append_scala da certi PC resttuisce un errore
+        Utils.logMessage('APPEND: inizio...')
+        msg = QMessageBox()
+        #recupero le info di connex al DB da un qualunque dei layer:
+        connInfo = SCALE_layer.source()
+        dest_dir = self.estrai_param_connessione(connInfo)
+        global epsg_srid
+        schemaDB = theSchema
+        test_conn = None
+        try:
+            self.dlg_append.txtFeedback.setText("Sto importando i dati...")            
+            #apro il cursore per leggere/scrivere sul DB:
+            test_conn = psycopg2.connect(dest_dir)
+            cur = test_conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            
+            #recupero alcune variabili dal progetto:
+            query_var = """SELECT cod_belf, lotto, srid FROM %s.variabili_progetto_return LIMIT 1;""" % (schemaDB)
+            cur.execute(query_var)
+            results_var = cur.fetchone()
+            epsg_srid_var = results_var['srid']
+            comuneDB = results_var['cod_belf']
+            codice_lotto = results_var['lotto']
+            
+            #CONTROLLO SRID e GEOMETRIA:
+            query_check = """SELECT st_srid(a.geom) AS srid, st_geometrytype(a.geom) AS wkb_new, st_geometrytype(b.geom) AS wkb_dest FROM %s.%s a, %s.scala b LIMIT 1;""" % (schemaDB, self.LAYER_NAME['SCALA_append'], schemaDB)
+            cur.execute(query_check)
+            results_check = cur.fetchone()
+            epsg_srid = results_check['srid']
+            new_point_type = results_check['wkb_new']
+            dest_point_type = results_check['wkb_dest']
+            
+            if (epsg_srid_var != epsg_srid):
+                msg.setText("Gli SRID delle scale non corrispondono, impossibile proseguire.")
+                msg.setDetailedText('srid SCALE di riferimento=' + str(epsg_srid_var) + '; srid NUOVE scale=' + str(epsg_srid))
+                msg.setIcon(QMessageBox.Critical)
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.setWindowTitle("Errore nell'importazione!")
+                retval = msg.exec_()
+                return 0
+            
+            if (dest_point_type != new_point_type):
+                msg.setText("Le GEOMETRIE delle scale non corrispondono, impossibile proseguire.")
+                if (dest_point_type=='ST_Point'):
+                    msg.setDetailedText('Geometria SCALE di riferimento=' + str(dest_point_type) + '; geometria NUOVE scale=' + str(new_point_type) + '\nPer poter continuare, importare nuovamente le nuove scale tramite DBManager scegliendo la opzione "Crea geometrie a parti singole invece che multiple"')
+                if (dest_point_type=='ST_MultiPoint'):
+                    msg.setDetailedText('Geometria SCALE di riferimento=' + str(dest_point_type) + '; geometria NUOVE scale=' + str(new_point_type) + '\nPer poter continuare, importare nuovamente le nuove scale tramite DBManager senza scegliere la opzione "Crea geometrie a parti singole invece che multiple"')
+                msg.setIcon(QMessageBox.Critical)
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.setWindowTitle("Errore nell'importazione!")
+                retval = msg.exec_()
+                return 0
+            
+            #Modifico eventualmente il nome di alcuni campi, o ne aggiungo, richiamando una funzione:
+            cur.execute("SELECT public.s_alter_scala_fn('%s', %i, '%s');" % (schemaDB, epsg_srid, self.LAYER_NAME['SCALA_append']))
+            test_conn.commit()
+            
+            #prima di aggiungere queste scale alla tabella finale, controllo non vi siano geometrie duplicate:
+            query_doppioni = "SELECT count(*) AS cnt FROM %s.%s a, %s.scala b WHERE ST_Equals(a.geom, b.geom);" % (schemaDB, self.LAYER_NAME['SCALA_append'], schemaDB)
+            cur.execute(query_doppioni)
+            results_doppioni = cur.fetchone()
+            cnt_doppioni = results_doppioni['cnt']
+            if (cnt_doppioni>0):
+                msg.setText( "Sono state trovate nello shp da importare %s geometrie duplicate con il layer di destinazione. Si desidera continuare comunque?" % (str(cnt_doppioni)) )
+                msg.setIcon(QMessageBox.Warning)
+                msg.setWindowTitle("Geometrie duplicate: continuare?")
+                msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                retval = msg.exec_()
+                if (retval != 16384): #l'utente NON ha cliccato yes: sceglie di fermarsi, esco
+                    self.dlg_append.txtFeedback.setText("Trovate geometrie duplicate. L'utente ha scelto di fermarsi.")
+                    return 0
+            #l'utente HA CLICCATO YES, continuo
+            
+            #ulteriore controllo sulle n_ui: il campo e' pieno di NULL?
+            query_nulli = "SELECT count(*) AS totale, count(CASE WHEN n_ui IS NULL THEN 1 END) AS nulli FROM %s.%s;" % (schemaDB, self.LAYER_NAME['SCALA_append'])
+            cur.execute(query_nulli)
+            results_nulli = cur.fetchone()
+            scale_totali = results_nulli['totale']
+            scale_nulle = results_nulli['nulli']
+            if (scale_nulle>0):
+                msg.setText( "Sono state trovate nello shp da importare %s oggetti con n_ui NULLO su un totale di %s oggetti. Si desidera continuare comunque?" % ( str(scale_nulle), str(scale_totali) ) )
+                msg.setIcon(QMessageBox.Warning)
+                msg.setWindowTitle("Campo n_ui con valori nulli: continuare?")
+                msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                retval = msg.exec_()
+                if (retval != 16384): #l'utente NON ha cliccato yes: sceglie di fermarsi, esco
+                    self.dlg_append.txtFeedback.setText("Trovati oggetti con n_ui NULLO. L'utente ha scelto di fermarsi.")
+                    return 0
+            
+            #a questo punto dovrei essere pronto per unire queste scale a quelle precedenti:
+            query_append = """INSERT INTO %s.scala
+            (geom, id_scala, id_pop, id_pfp, id_pfs, id_pd, id_giunto, particella, codice_via, nord, est, cod_cft, enabled, tipo, naming_of, id_sc_ref, n_ui, n_ui_originali, comune, provincia, frazione, indirizzo, id_buildin, regione, civico, ebw_propri, ebw_stato_, ebw_note)
+            SELECT
+            geom, id_scala, id_pop, id_pfp, id_pfs, id_pd, id_giunto, particella, codice_via, nord, est, cod_cft, enabled, tipo, naming_of, id_sc_ref, n_ui, n_ui_originali, comune, provincia, frazione, indirizzo, id_buildin, regione, civico, ebw_propri, ebw_stato_, ebw_note
+            FROM %s.%s;""" % (schemaDB, schemaDB, self.LAYER_NAME['SCALA_append'])
+            cur.execute(query_append)
+            test_conn.commit()
+            
+            #Da mail di Gatti del 25/08/2017: risulta che caricando lo SHP delle SCALE non sempre il gid e' calcolato. Lo ricalcolo a prescindere per tutte le scale:
+            query_id_scala = "UPDATE %s.scala SET id_scala = '%s'||'%s'||lpad(gid::text, 5, '0');" % (schemaDB, comuneDB, codice_lotto)
+            Utils.logMessage('query creazione id scala = ' + str(query_id_scala));
+            cur.execute(query_id_scala)
+            test_conn.commit()
+            
+            cur.close()
+        
+        except psycopg2.Error, e:
+            Utils.logMessage(e.pgerror)
+            self.dlg_append.txtFeedback.setText("Errore su DB, vedere il log o contattare l'amministratore")
+            msg.setText(e.pgerror)
+            msg.setDetailedText("Se l'errore riguarda la violazione della chiave primaria sul campo gid, controllare che sulla tavola di destinazione tale campo e la sequence ad esso corrispondente non siano stati in qualche modo compromessi ovvero modificati manualmente perdendo dunque consistenza.")
+            msg.setIcon(QMessageBox.Critical)
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.setWindowTitle("Errore nell'importazione!")
+            retval = msg.exec_()                
+            test_conn.rollback()
+            return 0
+        except SystemError, e:
+            Utils.logMessage('Errore di sistema!')
+            self.dlg_append.txtFeedback.setText('Errore di sistema!')
+            msg.setText("Errore di sistema!")
+            msg.setIcon(QMessageBox.Critical)
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.setWindowTitle("Errore nell'importazione!")
+            retval = msg.exec_()    
+            test_conn.rollback()
+            return 0
+        else:
+            self.dlg_append.txtFeedback.setText("Scale appese con successo!")
+            msg.setText("Scale appese con successo!")
+            msg.setIcon(QMessageBox.Information)
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.setWindowTitle("Scale appese con successo!")
+            retval = msg.exec_()
+        finally:
+            if test_conn is not None:
+                test_conn.close()
+        
     def append_scala(self):
         Utils.logMessage('APPEND: inizio...')
         msg = QMessageBox()

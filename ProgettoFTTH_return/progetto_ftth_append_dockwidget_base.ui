@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>394</width>
-    <height>279</height>
+    <height>452</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>140</x>
-     <y>240</y>
+     <y>420</y>
      <width>91</width>
      <height>32</height>
     </rect>
@@ -53,7 +53,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>120</x>
-     <y>100</y>
+     <y>90</y>
      <width>141</width>
      <height>31</height>
     </rect>
@@ -66,7 +66,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>140</y>
+     <y>330</y>
      <width>361</width>
      <height>91</height>
     </rect>
@@ -87,7 +87,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>280</x>
-     <y>70</y>
+     <y>60</y>
      <width>91</width>
      <height>20</height>
     </rect>
@@ -100,10 +100,59 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>70</y>
+     <y>60</y>
      <width>261</width>
      <height>20</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="Line" name="line">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>120</y>
+     <width>341</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>130</y>
+     <width>371</width>
+     <height>151</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Se la procedura di import delle SCALE dovesse fallire adottando la procedura di cui sopra, provare a caricare le nuove scale sul DB usando &amp;quot;DB Manager&amp;quot;, ricordandosi di:&lt;br/&gt;1-chiamare la tabella &amp;quot;scala_append&amp;quot; e salvarla nello schema di progetto CORRENTE&lt;br/&gt;2-creare la colonna della chiave primaria &amp;quot;gid&amp;quot;&lt;br/&gt;3-sostituire la tabella di destinazione (se esiste) ed importare i dati&lt;br/&gt;4-chiudere &amp;quot;DB Manager&amp;quot; e appendere le nuove scale (appena caricate sul DB) a quelle esistenti cliccando sul seguente pulsante:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="importBtn_DbManager">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>280</y>
+     <width>141</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>nuove SCALE gia sul DB tramite DBManager</string>
+   </property>
+   <property name="text">
+    <string>Append SCALE
+(gia su DB)</string>
    </property>
   </widget>
   <zorder>layoutWidget</zorder>
@@ -113,6 +162,9 @@ p, li { white-space: pre-wrap; }
   <zorder>txtFeedback</zorder>
   <zorder>shpBrowse_btn</zorder>
   <zorder>shpBrowse_txt</zorder>
+  <zorder>line</zorder>
+  <zorder>label</zorder>
+  <zorder>importBtn_DbManager</zorder>
  </widget>
  <tabstops>
   <tabstop>importBtn</tabstop>
