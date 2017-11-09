@@ -3590,7 +3590,7 @@ PFS: %(id_pfs)s"""
             test_conn.commit()
             
             #Da mail di Gatti del 25/08/2017: risulta che caricando lo SHP delle SCALE non sempre il gid e' calcolato. Lo ricalcolo a prescindere per tutte le scale:
-            query_id_scala = "UPDATE %s.scala SET id_scala = '%s'||'%s'||lpad(gid::text, 5, '0');" % (schemaDB, comuneDB, codice_lotto)
+            query_id_scala = "UPDATE %s.scala SET id_scala = '%s'||'%s'||lpad(gid::text, 5, '0') WHERE id_scala IS NULL;" % (schemaDB, comuneDB, codice_lotto)
             Utils.logMessage('query creazione id scala = ' + str(query_id_scala));
             cur.execute(query_id_scala)
             test_conn.commit()
@@ -3809,7 +3809,7 @@ PFS: %(id_pfs)s"""
                 test_conn.commit()
                 
                 #Da mail di Gatti del 25/08/2017: risulta che caricando lo SHP delle SCALE non sempre il gid e' calcolato. Lo ricalcolo a prescindere per tutte le scale:
-                query_id_scala = "UPDATE %s.scala SET id_scala = '%s'||'%s'||lpad(gid::text, 5, '0');" % (schemaDB, comuneDB, codice_lotto)
+                query_id_scala = "UPDATE %s.scala SET id_scala = '%s'||'%s'||lpad(gid::text, 5, '0') WHERE id_scala IS NULL;" % (schemaDB, comuneDB, codice_lotto)
                 Utils.logMessage('query creazione id scala = ' + str(query_id_scala));
                 cur.execute(query_id_scala)
                 test_conn.commit()
