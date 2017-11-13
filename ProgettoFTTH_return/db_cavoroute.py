@@ -1512,7 +1512,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_scala, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(SCALA_SCALA[0]), theSchema, int(SCALA_SCALA[1]))
                 cur_update.execute(query_SCALA_SCALA)
                 for result_SCALA_SCALA in cur_update:
-                    Utils.logMessage(result_SCALA_SCALA[0] + ' - ' + result_SCALA_SCALA[1])
+                    Utils.logMessage( str(result_SCALA_SCALA[0]) + ' - ' + str(result_SCALA_SCALA[1]) )
         else:
             Utils.logMessage("SCALA_SCALA IDs: OK!")
         
@@ -1524,7 +1524,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_pta, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(SCALA_PTA[0]), theSchema, int(SCALA_PTA[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("SCALA_PTA IDs: OK!")
         
@@ -1536,7 +1536,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_giunto, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(SCALA_GIUNTO[0]), theSchema, int(SCALA_GIUNTO[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("SCALA_GIUNTO IDs: OK!")
         
@@ -1548,7 +1548,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_pd, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(SCALA_PD[0]), theSchema, int(SCALA_PD[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("SCALA_PD IDs: OK!")
             
@@ -1560,7 +1560,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_pfs, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(SCALA_PFS[0]), theSchema, int(SCALA_PFS[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("SCALA_PFS IDs: OK!")
             
@@ -1572,7 +1572,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_pd, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(PTA_PFS[0]), theSchema, int(PTA_PFS[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("PTA_PFS IDs: OK!")
         
@@ -1584,7 +1584,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_pd, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(PTA_PD[0]), theSchema, int(PTA_PD[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("PTA_PD IDs: OK!")
             
@@ -1596,7 +1596,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_pta, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(PTA_PTA[0]), theSchema, int(PTA_PTA[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("PTA_PTA IDs: OK!")
             
@@ -1608,7 +1608,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_giunto, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(PTA_GIUNTO[0]), theSchema, int(PTA_GIUNTO[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("PTA_GIUNTO IDs: OK!")
         
@@ -1620,7 +1620,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_giunto, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(GIUNTO_GIUNTO[0]), theSchema, int(GIUNTO_GIUNTO[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("GIUNTO_GIUNTO IDs: OK!")
 
@@ -1632,7 +1632,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_pd, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(GIUNTO_PD[0]), theSchema, int(GIUNTO_PD[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("GIUNTO_PD IDs: OK!")
         
@@ -1644,7 +1644,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_pd, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(PD_PD[0]), theSchema, int(PD_PD[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("PD_PD IDs: OK!")
         
@@ -1656,7 +1656,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_pfs, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(PD_PFS[0]), theSchema, int(PD_PFS[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("PD_PFS IDs: OK!")
         
@@ -1668,7 +1668,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 (SELECT array_to_string(gid_pfp, ',') AS id_target FROM %s.pgrvertices_netpoints_array WHERE id_pgr=%i) AS target;""" % (theSchema, int(PFS_PFP[0]), theSchema, int(PFS_PFP[1]))
                 cur_update.execute(query_SCALA_PTA)
                 for result_SCALA_PTA in cur_update:
-                    Utils.logMessage(result_SCALA_PTA[0] + ' - ' + result_SCALA_PTA[1])
+                    Utils.logMessage( str(result_SCALA_PTA[0]) + ' - ' + str(result_SCALA_PTA[1]) )
         else:
             Utils.logMessage("PFS_PFP IDs: OK!")
             
