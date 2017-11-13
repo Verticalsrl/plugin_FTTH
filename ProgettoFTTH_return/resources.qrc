@@ -6,7 +6,7 @@
         <file>config_and_create.png</file>
     </qresource>
 	<qresource prefix="/plugins/ProgettoFTTH" >
-        <file>compare.png</file>
+        <file>compare_C83737.png</file>
     </qresource>
 	<qresource prefix="/plugins/ProgettoFTTH" >
         <file>cavo_route_C83737.png</file>

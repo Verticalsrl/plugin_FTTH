@@ -2562,6 +2562,15 @@ PFS: %(id_pfs)s"""
             idx_dest=layer_dest.fieldNameIndex('n_pd')
             Utils.logMessage("Numero dei PD = " + str(len(selected_features_ids_origine)))
             layer_dest.changeAttributeValue(gid_feature_dest, idx_dest, len(selected_features_ids_origine)+TOT_ncont_dest)
+        #nello stesso campo n_pd conto SCALE e GIUNTI connessi direttamente al PFS:
+        if (layer_dest.name()==self.LAYER_NAME['PFS'] and layer_origine.name()==self.LAYER_NAME['GIUNTO']):
+            idx_dest=layer_dest.fieldNameIndex('n_pd')
+            Utils.logMessage("Numero dei GIUNTI = " + str(len(selected_features_ids_origine)))
+            layer_dest.changeAttributeValue(gid_feature_dest, idx_dest, len(selected_features_ids_origine)+TOT_ncont_dest)
+        if (layer_dest.name()==self.LAYER_NAME['PFS'] and layer_origine.name()==self.LAYER_NAME['SCALA']):
+            idx_dest=layer_dest.fieldNameIndex('n_pd')
+            Utils.logMessage("Numero di SCALE = " + str(len(selected_features_ids_origine)))
+            layer_dest.changeAttributeValue(gid_feature_dest, idx_dest, len(selected_features_ids_origine)+TOT_ncont_dest)
         #Associo il numero dei PFS se si tratta di connessione PFS-PFP:
         if (layer_dest.name()==self.LAYER_NAME['PFP'] and layer_origine.name()==self.LAYER_NAME['PFS']):
             idx_dest=layer_dest.fieldNameIndex('n_pfs')
@@ -2652,6 +2661,15 @@ PFS: %(id_pfs)s"""
             #...mi fermo al PRIMO LIVELLO up-bottom poiche' al momento non richiesta
             #Poi passo ad associare a cascata sulle SCALE connesse al GIUNTO:
             self.associa_padri('PD', chiave_origine, SCALE_layer)
+            self.associa_padri('PFS', chiave_origine, SCALE_layer)
+            self.associa_padri('PFP', chiave_origine, SCALE_layer)
+        #GIUNTO-PFS:
+        if (layer_dest.name()==self.LAYER_NAME['PFS'] and layer_origine.name()==self.LAYER_NAME['GIUNTO']):
+            #Prima associo i vari ID del PFS al GIUNTO:
+            self.associa_padri('PFP', chiave_origine, GIUNTO_layer)
+            #nel caso in cui questa GIUNTO abbia dei GIUNTI associati in cascata, devo associare anche a loro l'id del PFS:
+            self.associa_padri_giunti('PFS', 'GIUNTO_F_dev', GIUNTO_layer)
+            #Poi passo ad associare a cascata sulle SCALE connesse al GIUNTO anche NON direttamente:
             self.associa_padri('PFS', chiave_origine, SCALE_layer)
             self.associa_padri('PFP', chiave_origine, SCALE_layer)
         #GIUNTO-GIUNTO: In questo caso non faccio nulla poiche' l'ID del GIUNTO_PADRE non si trasmette fino alle SCALE figli del GIUNTO_FIGLIO...ma gli altri campi UP si!
@@ -2780,7 +2798,7 @@ PFS: %(id_pfs)s"""
     
     def associa_cascata_scala(self, chiave_padre, chiave_origine, layer_figlio):
         #Uso questa funzione per connex SCALA-SCALA.
-        #Potrebbe essere uguale a associa_padri_giunti ma quest'ultima non la voglio modificare, vsto he funzionava...!
+        #Potrebbe essere uguale a associa_padri_giunti ma quest'ultima non la voglio modificare, visto he funzionava...!
         try:
             #In questa funzione a CASCATA associo ID padri a tutti i figli connessi. Pensato specificatamente per le connessioni SCALA-SCALA prendendo in considerazione le SCALE FIGLIE
             layer_figlio.startEditing()
@@ -2818,7 +2836,7 @@ PFS: %(id_pfs)s"""
                     for jj_ids in SCALE_layer_ids_selezionate:
                         SCALE_layer.changeAttributeValue(jj_ids, idx_SCALE, ID_DEST)'''
         except:
-            QMessageBox.critical(self.dock, self.dock.windowTitle(), 'Errore di sistema! Associazione delle scale dei giunti_figli NON avvenuta')
+            QMessageBox.warning(self.dock, self.dock.windowTitle(), 'Errore di sistema! Associazione del nuovo ID alle scale_figlie NON avvenuta. Se non vi sono scale_figlie, allora il problema non vi riguarda.')
             layer_figlio.rollBack()
             #SCALE_layer.rollBack()
         else:
@@ -2828,7 +2846,7 @@ PFS: %(id_pfs)s"""
     
     def associa_cascata_pd(self, chiave_padre, chiave_origine, layer_figlio):
         #Uso questa funzione per connex PD-PD.
-        #Potrebbe essere uguale a associa_padri_giunti ma quest'ultima non la voglio modificare, vsto he funzionava...!
+        #Potrebbe essere uguale a associa_padri_giunti ma quest'ultima non la voglio modificare, visto he funzionava...!
         try:
             #In questa funzione a CASCATA associo ID padri a tutti i figli connessi. Pensato specificatamente per le connessioni PD-PD prendendo in considerazione le PD FIGLIE
             layer_figlio.startEditing()
@@ -2866,7 +2884,7 @@ PFS: %(id_pfs)s"""
                     for jj_ids in SCALE_layer_ids_selezionate:
                         SCALE_layer.changeAttributeValue(jj_ids, idx_SCALE, ID_DEST)'''
         except:
-            QMessageBox.critical(self.dock, self.dock.windowTitle(), 'Errore di sistema! Associazione delle scale dei giunti_figli NON avvenuta')
+            QMessageBox.warning(self.dock, self.dock.windowTitle(), 'Errore di sistema! Associazione del nuovo ID ai pd_figli NON avvenuta. Se non vi sono pd_figli, allora il problema non vi riguarda.')
             layer_figlio.rollBack()
             #SCALE_layer.rollBack()
         else:
@@ -3248,6 +3266,13 @@ PFS: %(id_pfs)s"""
             callback=self.run_core,
             parent=self.iface.mainWindow())
         
+        icon_path = ':/plugins/ProgettoFTTH/compare_C83737.png'
+        self.add_action(
+            icon_path,
+            text=self.tr(u'Verifica le connessioni'),
+            callback=self.run_compare,
+            parent=self.iface.mainWindow())
+        
         icon_path = ':/plugins/ProgettoFTTH/cavo_route_C83737.png'
         self.add_action(
             icon_path,
@@ -3303,19 +3328,7 @@ PFS: %(id_pfs)s"""
             text=self.tr(u'Informazioni'),
             callback=self.run_help,
             parent=self.iface.mainWindow())
-        
-        
-        '''
-        #TEST: aggiungo DockWidget:
-            
-        icon_path = ':/plugins/ProgettoFTTH/compare.png'
-        self.add_action(
-            icon_path,
-            text=self.tr(u'Verifica le connessioni'),
-            callback=self.run_compare,
-            parent=self.iface.mainWindow())
-        
-        '''
+
 
         #load the form
         path = os.path.dirname(os.path.abspath(__file__))
