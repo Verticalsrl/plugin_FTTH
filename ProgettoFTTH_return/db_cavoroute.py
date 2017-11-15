@@ -1428,7 +1428,8 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     query_update_cavi = "UPDATE %s.cavo SET tot_cavi=f_4+f_12+f_24+f_48+f_72+f_96+f_144+f_192;" % (theSchema)
     cur_update.execute(query_update_cavi)   
     '''
-    #NUOVA RISCHIESTA MAIL GATTI del 24 Ottobre 2017: ricalcolo f_192 e altri campi in base ad altri criteri - DA SVILUPPARE E APPROFONDIRE!!
+    '''
+    #NUOVA RISCHIESTA MAIL GATTI del 24 Ottobre 2017: ricalcolo f_192 e altri campi in base ad altri criteri
     #Da mail di Gatti del 31 Ottobre 2017: tot_cavi1, tot_cavi2, tot_cavicd: messi a mano dal progettista
     #Da mail di Gatti del 31 Ottobre 2017: "cavi_pr", "cavi_bh", "cavi_cd": messi a mano dal progettista
     query_tot_cavi = "UPDATE %s.cavo SET tot_cavi = tot_cavi1 + tot_cavi2 + tot_cavicd;" % (theSchema)
@@ -1445,6 +1446,38 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     END;""" % (theSchema)
     cur_update.execute(query_cavi2)
     test_conn.commit()
+    '''
+    
+    #Da skype con Gatti del 14 Novembre 2017: tot_cavi1, tot_cavi2, tot_cavicd: questi campi li deve calcolare il plugin. Vengono riviste inoltre alcune formule:
+    query_cavi2 = """UPDATE %s.cavo SET cavi2 = CASE
+        WHEN (tipo_posa ~* '.*interr.*') THEN f_12 + f_24 + f_48 + f_72 + f_96 + f_144
+        ELSE f_24 + f_48 + f_72 + f_96 + f_144
+    END;""" % (theSchema)
+    cur_update.execute(query_cavi2)
+    test_conn.commit()
+    
+    query_tot_cavi_xx = """UPDATE %s.cavo SET 
+        tot_cavi1 = cavi_pr + cavi_bh,
+        tot_cavi2 = cavi2,
+        tot_cavicd = cavi_cd;""" % (theSchema)
+    cur_update.execute(query_tot_cavi_xx)
+    test_conn.commit()
+    
+    query_tot_cavi = "UPDATE %s.cavo SET tot_cavi = tot_cavi1 + tot_cavi2 + tot_cavicd;" % (theSchema)
+    cur_update.execute(query_tot_cavi)
+    test_conn.commit()
+    
+    #Verifica non richiesta ma forse necessaria:
+    query_f192 = "SELECT max(f_192-(cavi_pr + cavi_bh + cavi_cd)) FROM %s.cavo;" % (theSchema)
+    cur_update.execute(query_f192)
+    results_f192 = cur_update.fetchone()
+    if (results_f192[0]>0):
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("Attenzione, al somma di 'cavi_pr + cavi_bh + cavi_cd' non coincide con le fibre 'f_192'. Il programma proseguira' comunque i calcoli...")
+        msg.setWindowTitle("Possibile discordanza su primaria")
+        msg.setStandardButtons(QMessageBox.Ok)
+        retval = msg.exec_()
+    
     
     '''
     #vecchie query della mail del 24 ottobre 2017 ridefinite dalla mail del 31 ottobre 2017:

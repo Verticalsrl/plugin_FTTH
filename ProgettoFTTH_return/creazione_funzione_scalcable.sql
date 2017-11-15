@@ -119,14 +119,7 @@ set n_mt_occ = '0'
 where n_mt_occ IS NULL;
 
 
---nuove regole mail Gatti 31 ottobre 2017:
-UPDATE cavo SET
-    n_mt_occ = CASE
-    WHEN tot_cavi=0 THEN 0
-    ELSE tot_cavi+2
-    END
-WHERE flag_posa ~* '.*no.*' AND tipo_posa ~* '.*interr.*';
-
+--nuove regole mail Gatti 14 novembre 2017:
 UPDATE cavo SET 
     n_mt_occ_1 = CASE
     WHEN cavi_pr+cavi_bh = 14 THEN cavi_pr+cavi_bh +4
@@ -152,7 +145,18 @@ UPDATE cavo SET
     n_mt_occ = n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int,
     n_mtubo = ceil((n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int)::double precision / 7) || 'x7'
 WHERE flag_posa ~* '.*si.*';
---fine nuove regole mai Gatti 31 ottobre 2017
+
+UPDATE cavo SET
+    n_mt_occ = CASE
+    WHEN tot_cavi=0 THEN 0
+    ELSE tot_cavi+2
+    END,
+    n_mtubo = NULL,
+    n_mt_occ_1 = NULL,
+    n_mt_occ_2 = NULL,
+    n_mt_occ_cd = NULL
+WHERE flag_posa ~* '.*no.*' AND tipo_posa ~* '.*interr.*';
+--fine nuove regole mai Gatti 14 novembre 2017
 
 
 UPDATE cavo
