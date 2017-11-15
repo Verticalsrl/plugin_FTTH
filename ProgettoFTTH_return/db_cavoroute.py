@@ -415,7 +415,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -431,7 +431,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
               source,
               target,
               length_m AS cost
-              FROM %s.cavo',
+              FROM %s.cavo WHERE source IS NOT NULL',
               %i, %i, false, false);""" % (theSchema, id_source, id_target)
             #ATTENZIONE! Se questa query NON RESTITUISCE niente, vuol dire molto probabilmente che vi e' un problema nella geometria del layer CAVO! Ad esempio la linea del cavo non e' stata spezzata in prossimita di un vertice. Devo restituire questo errore, e se riesco l'id del cavo o almeno l'id dei punti che NON SONO RIUSCITO A COLLEGARE
             cur_associa_sc_pta.execute(query_associa)
@@ -492,7 +492,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -508,7 +508,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
               source,
               target,
               length_m AS cost
-              FROM %s.cavo',
+              FROM %s.cavo WHERE source IS NOT NULL',
               %i, %i, false, false);""" % (theSchema, id_source, id_target)
             #ATTENZIONE! Se questa query NON RESTITUISCE niente, vuol dire molto probabilmente che vi e' un problema nella geometria del layer CAVO! Ad esempio la linea del cavo non e' stata spezzata in prossimita di un vertice. Devo restituire questo errore, e se riesco l'id del cavo o almeno l'id dei punti che NON SONO RIUSCITO A COLLEGARE
             cur_associa_sc_pta.execute(query_associa)
@@ -568,7 +568,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -582,7 +582,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
               source,
               target,
               length_m AS cost
-              FROM %s.cavo',
+              FROM %s.cavo WHERE source IS NOT NULL',
               %i, %i, false, false);""" % (theSchema, id_source, id_target)
             cur_associa_sc_gi.execute(query_associa)
             results_associacavo_dict = cur_associa_sc_gi.fetchall()
@@ -634,7 +634,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -647,7 +647,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
               source,
               target,
               length_m AS cost
-              FROM %s.cavo',
+              FROM %s.cavo WHERE source IS NOT NULL',
               %i, %i, false, false);""" % (theSchema, id_source, id_target)
             cur_associa_sc_pd.execute(query_associa)
             results_associacavo_dict = cur_associa_sc_pd.fetchall()
@@ -699,7 +699,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -712,7 +712,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
               source,
               target,
               length_m AS cost
-              FROM %s.cavo',
+              FROM %s.cavo WHERE source IS NOT NULL',
               %i, %i, false, false);""" % (theSchema, id_source, id_target)
             cur_associa_sc_pfs.execute(query_associa)
             results_associacavo_dict = cur_associa_sc_pfs.fetchall()
@@ -787,7 +787,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -800,7 +800,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
               source,
               target,
               length_m AS cost
-              FROM %s.cavo',
+              FROM %s.cavo WHERE source IS NOT NULL',
               %i, %i, false, false);""" % (theSchema, id_source, id_target)
             cur_associa_pta_pd.execute(query_associa)
             results_associacavo_dict = cur_associa_pta_pd.fetchall()
@@ -847,7 +847,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -860,7 +860,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
               source,
               target,
               length_m AS cost
-              FROM %s.cavo',
+              FROM %s.cavo WHERE source IS NOT NULL',
               %i, %i, false, false);""" % (theSchema, id_source, id_target)
             cur_associa_pta_pd.execute(query_associa)
             results_associacavo_dict = cur_associa_pta_pd.fetchall()
@@ -909,7 +909,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -922,7 +922,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
               source,
               target,
               length_m AS cost
-              FROM %s.cavo',
+              FROM %s.cavo WHERE source IS NOT NULL',
               %i, %i, false, false);""" % (theSchema, id_source, id_target)
             cur_associa_pta_pd.execute(query_associa)
             results_associacavo_dict = cur_associa_pta_pd.fetchall()
@@ -969,7 +969,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -982,7 +982,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
               source,
               target,
               length_m AS cost
-              FROM %s.cavo',
+              FROM %s.cavo WHERE source IS NOT NULL',
               %i, %i, false, false);""" % (theSchema, id_source, id_target)
             cur_associa_pta_pd.execute(query_associa)
             results_associacavo_dict = cur_associa_pta_pd.fetchall()
@@ -1054,7 +1054,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -1067,7 +1067,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
               source,
               target,
               length_m AS cost
-              FROM %s.cavo',
+              FROM %s.cavo WHERE source IS NOT NULL',
               %i, %i, false, false);""" % (theSchema, id_source, id_target)
             cur_associa_gi_gi.execute(query_associa)
             results_associacavo_dict = cur_associa_gi_gi.fetchall()
@@ -1116,7 +1116,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -1129,7 +1129,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
             source,
             target,
             length_m AS cost
-            FROM %s.cavo',
+            FROM %s.cavo WHERE source IS NOT NULL',
             %i, %i, false, false);""" % (theSchema, id_source, id_target)
             cur_associa_gi_pd.execute(query_associa)
             results_associacavo_dict = cur_associa_gi_pd.fetchall()
@@ -1205,7 +1205,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -1218,7 +1218,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
             source,
             target,
             length_m AS cost
-            FROM %s.cavo',
+            FROM %s.cavo WHERE source IS NOT NULL',
             %i, %i, false, false);""" % (theSchema, id_source, id_target)
             cur_associa_pd_pfs.execute(query_associa)
             results_associacavo_dict = cur_associa_pd_pfs.fetchall()
@@ -1268,7 +1268,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -1281,7 +1281,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
             source,
             target,
             length_m AS cost
-            FROM %s.cavo',
+            FROM %s.cavo WHERE source IS NOT NULL',
             %i, %i, false, false);""" % (theSchema, id_source, id_target)
             cur_associa_pd_pfs.execute(query_associa)
             results_associacavo_dict = cur_associa_pd_pfs.fetchall()
@@ -1356,7 +1356,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
                 ,first_value(id1) OVER (PARTITION BY 1 ORDER BY seq DESC) AS target
                 ,seq, tipo_posa, case when lag(tipo_posa) OVER (ORDER BY seq) = tipo_posa THEN null ELSE 1 end group_flag, length_m
                 FROM pgr_dijkstra('
-                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo',
+                    SELECT gid AS id, source, target, length_m AS cost FROM %s.cavo WHERE source IS NOT NULL',
                     %i, %i, false, false) AS a
                 LEFT JOIN %s.cavo as b
                 ON (id2 = gid) ORDER BY seq
@@ -1369,7 +1369,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
             source,
             target,
             length_m AS cost
-            FROM %s.cavo',
+            FROM %s.cavo WHERE source IS NOT NULL',
             %i, %i, false, false);""" % (theSchema, id_source, id_target)
             cur_associa_pfs_pfp.execute(query_associa)
             results_associacavo_dict = cur_associa_pfs_pfp.fetchall()
@@ -1417,7 +1417,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     #        test_conn.close()
 
     
-    '''vecchia procedura sostituita ad mail del 31 ottobre 2017
+    '''vecchia procedura sostituita da mail del 31 ottobre 2017
     #NOTA MAIL GATTI del 20-21-23 Febbraio 2017: devo aggiungere delle f_192 in base al contenuto del campo codice_ins:
     #query_codice_ins = "UPDATE %s.cavo SET f_192 = CASE WHEN upper(codice_ins)='PR' THEN f_192+1 WHEN upper(codice_ins)='PR+BH' THEN f_192+2 ELSE f_192 END;" % (theSchema)
     #NOTA MAIL GATTI del 19 Aprile 2017: aggiungo ancora UN f_192 se solo BH:
@@ -1436,10 +1436,6 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     cur_update.execute(query_tot_cavi)
     test_conn.commit()
     
-    query_codice_ins = "UPDATE %s.cavo SET f_192 = cavi_pr + cavi_bh + cavi_cd;" % (theSchema)
-    cur_update.execute(query_codice_ins)
-    test_conn.commit()
-    
     query_cavi2 = """UPDATE %s.cavo SET cavi2 = CASE
         WHEN (cavi_pr + cavi_bh + cavi_cd)=0 THEN tot_cavi
         WHEN (cavi_pr + cavi_bh + cavi_cd)>0 THEN f_4 + f_12  + f_24  + f_48  + f_72  + f_96  + f_144
@@ -1449,6 +1445,10 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     '''
     
     #Da skype con Gatti del 14 Novembre 2017: tot_cavi1, tot_cavi2, tot_cavicd: questi campi li deve calcolare il plugin. Vengono riviste inoltre alcune formule:
+    query_codice_ins = "UPDATE %s.cavo SET f_192 = cavi_pr + cavi_bh + cavi_cd;" % (theSchema)
+    cur_update.execute(query_codice_ins)
+    test_conn.commit()
+    
     query_cavi2 = """UPDATE %s.cavo SET cavi2 = CASE
         WHEN (tipo_posa ~* '.*interr.*') THEN f_12 + f_24 + f_48 + f_72 + f_96 + f_144
         ELSE f_24 + f_48 + f_72 + f_96 + f_144

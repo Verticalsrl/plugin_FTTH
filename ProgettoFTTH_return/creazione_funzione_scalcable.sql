@@ -155,7 +155,7 @@ UPDATE cavo SET
     n_mt_occ_1 = NULL,
     n_mt_occ_2 = NULL,
     n_mt_occ_cd = NULL
-WHERE flag_posa ~* '.*no.*' AND tipo_posa ~* '.*interr.*';
+WHERE flag_posa ~* '.*no.*';
 --fine nuove regole mai Gatti 14 novembre 2017
 
 
