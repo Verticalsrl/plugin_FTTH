@@ -3883,6 +3883,14 @@ PFS: %(id_pfs)s"""
         cur_updatedb = conn_updatedb.cursor()
         Utils.logMessage('UPDATEDB: inizio la procedura')
         try:
+            sql_file = os.getenv("HOME") + '/.qgis2/python/plugins/ProgettoFTTH_return/creazione_funzione_scodificacable.sql'
+            cur_updatedb.execute(open(sql_file, "r").read())
+            conn_updatedb.commit()
+            #In questo caso lancio la funzione per creare la tabella di decodifica:
+            query_codifica_cable = "SELECT public.s_codifica_cable('%s', %i);" % (theSchema, self.epsg_srid)
+            cur_updatedb.execute(query_codifica_cable)
+            conn_updatedb.commit()
+            
             sql_file = os.getenv("HOME") + '/.qgis2/python/plugins/ProgettoFTTH_return/creazione_funzione_scalcable.sql'
             cur_updatedb.execute(open(sql_file, "r").read())
             conn_updatedb.commit()

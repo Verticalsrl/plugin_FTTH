@@ -385,6 +385,19 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     cur_clean.execute(query_clean)
     test_conn.commit()
     
+    #Poi calcolo alcuni campi di cavo secondo la tabella di decodifica public.nuova_codifica:
+    query_codifica = """UPDATE %s.cavo
+        SET tipo_scavo = a.tipo_scavo,
+        tipo_minit = a.tipo_minit,
+        mod_mtubo = a.mod_mtubo,
+        tipo_posa = a.posa,
+        posa_dett = a.posa_dett,
+        flag_posa = a.flag_posa
+        FROM public.nuova_codifica a
+    WHERE a.codice_inf = cavo.codice_inf;""" % (theSchema)
+    cur_clean.execute(query_clean)
+    test_conn.commit()
+    
     try:
         #SCALA-SCALA:
         id_associazione = 'SCALA_SCALA'
@@ -1444,90 +1457,15 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     test_conn.commit()
     '''
     
-    #Da skype con Gatti del 14 Novembre 2017: tot_cavi1, tot_cavi2, tot_cavicd: questi campi li deve calcolare il plugin. Vengono riviste inoltre alcune formule:
+    #Da skype con Gatti del 14 Novembre 2017: tot_cavi1, tot_cavi2, tot_cavicd: questi campi li deve calcolare il plugin. Vengono riviste inoltre alcune formule, altre riportate su creazione_funzione_scalcable.sql
     query_codice_ins = "UPDATE %s.cavo SET f_192 = cavi_pr + cavi_bh + cavi_cd;" % (theSchema)
     cur_update.execute(query_codice_ins)
     test_conn.commit()
-    
-    query_cavi2 = """UPDATE %s.cavo SET cavi2 = CASE
-        WHEN (tipo_posa ~* '.*interr.*') THEN f_12 + f_24 + f_48 + f_72 + f_96 + f_144
-        ELSE f_24 + f_48 + f_72 + f_96 + f_144
-    END;""" % (theSchema)
-    cur_update.execute(query_cavi2)
-    test_conn.commit()
-    
-    query_tot_cavi_xx = """UPDATE %s.cavo SET 
-        tot_cavi1 = cavi_pr + cavi_bh,
-        tot_cavi2 = cavi2,
-        tot_cavicd = cavi_cd;""" % (theSchema)
-    cur_update.execute(query_tot_cavi_xx)
-    test_conn.commit()
-    
-    query_tot_cavi = "UPDATE %s.cavo SET tot_cavi = tot_cavi1 + tot_cavi2 + tot_cavicd;" % (theSchema)
-    cur_update.execute(query_tot_cavi)
-    test_conn.commit()
-    
-    #Verifica non richiesta ma forse necessaria:
-    query_f192 = "SELECT max(f_192-(cavi_pr + cavi_bh + cavi_cd)) FROM %s.cavo;" % (theSchema)
-    cur_update.execute(query_f192)
-    results_f192 = cur_update.fetchone()
-    if (results_f192[0]>0):
-        msg.setIcon(QMessageBox.Warning)
-        msg.setText("Attenzione, al somma di 'cavi_pr + cavi_bh + cavi_cd' non coincide con le fibre 'f_192'. Il programma proseguira' comunque i calcoli...")
-        msg.setWindowTitle("Possibile discordanza su primaria")
-        msg.setStandardButtons(QMessageBox.Ok)
-        retval = msg.exec_()
-    
-    
-    '''
-    #vecchie query della mail del 24 ottobre 2017 ridefinite dalla mail del 31 ottobre 2017:
-    query_flag_no = "UPDATE %s.cavo SET n_mt_occ = (tot_cavi1 + tot_cavi2 + tot_cavicd + 2)::text || 'x7', n_mt_occ_1=0, n_mt_occ_2=0, n_mt_occ_cd=0 WHERE UPPER(flag_posa) LIKE '%NO%';" % (theSchema)
-    cur_update.execute(query_flag_no)
-    test_conn.commit()
-    
-    query_flag_si = """UPDATE %s.cavo SET 
-        n_mt_occ_1 = CASE
-        WHEN tot_cavi1+tot_cavicd < 6 THEN '1x7'
-        WHEN tot_cavi1+tot_cavicd < 13 THEN '2x7'
-        ELSE '3x7'
-        END,
-        n_mt_occ_2 = CASE
-        WHEN tot_cavi2+2 < 6 THEN '1x7'
-        WHEN tot_cavi2+2 < 13 THEN '2x7'
-        ELSE '3x7'
-        END
-    WHERE UPPER(flag_posa) LIKE '%SI%';""" % (theSchema)
-    cur_update.execute(query_flag_si)
-    test_conn.commit()
-    
-    #in questo caso per compilare n_mt_occ prendo la prima cifra dei campi n_mt_occ_1 e n_mt_occ_2:
-    query_flag_si2 = """UPDATE %s.cavo SET 
-        n_mt_occ = (substr(n_mt_occ_1, 1, 1)::integer + substr(n_mt_occ_2, 1, 1)::integer) || 'x7'
-    WHERE UPPER(flag_posa) LIKE '%SI%';""" % (theSchema)
-    cur_update.execute(query_flag_si2)    
-    test_conn.commit()
-    '''
     
     #Restano ancora da calcolare i cavi e le fibre:
     query_update_fibre = "UPDATE %s.cavo SET tot_fibre=(f_4*4)+(f_12*12)+(f_24*24)+(f_48*48)+(f_72*72)+(f_96*96)+(f_144*144)+(f_192*192);" % (theSchema)
     cur_update.execute(query_update_fibre)
     
-    test_conn.commit()
-    
-    #MAIL GATTI/MOCCO del 19 Giugno 2017: ricalcolare alcuni campi del layer cavo in base ad alcune regole definite in un file .ods allegato alla mail.
-    query_update_cavo = """
-        UPDATE %s.cavo SET tipo_scavo=
-        CASE
-        WHEN upper(codice_inf)='MINITRINCEA' THEN 'minitrincea'
-        WHEN upper(codice_inf)='TRINCEA NORMALE' THEN 'scavo tradizionale'
-        END
-        , tipo_minit=
-        CASE
-        WHEN upper(codice_inf)='NO DIG' THEN 'bandle'
-        WHEN upper(codice_inf)='RACCORDO' THEN 'singolo'
-        END;
-    """ % (theSchema)
-    cur_update.execute(query_update_cavo)
     test_conn.commit()
     
     #cur_update.close()
