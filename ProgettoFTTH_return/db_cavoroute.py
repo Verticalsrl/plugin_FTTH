@@ -395,7 +395,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
         flag_posa = a.flag_posa
         FROM public.nuova_codifica a
     WHERE a.codice_inf = cavo.codice_inf;""" % (theSchema)
-    cur_clean.execute(query_clean)
+    cur_clean.execute(query_codifica)
     test_conn.commit()
     
     try:
