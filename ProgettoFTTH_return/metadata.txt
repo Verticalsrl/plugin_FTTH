@@ -11,10 +11,10 @@ name=ProgettoFTTH_return
 qgisMinimumVersion=2.14
 qgisMaximumVersion=2.14
 description=Associazione contatori - PD - giunti - PFS - PFP
-version=5.3.3
+version=5.3.4
 author=A.R.Gaeta/Vertical Srl
 email=info@vertical.digital
-release_date=2017/11/21
+release_date=2017/11/24
 
 about=Questo plugin permette di gestire la progettazione della rete ENEL-FTTH
 
@@ -32,6 +32,7 @@ changelog=
 		  - riordinate le procedure di calcolo del cavo, separando la fuzione che crea la tabella dalla funzione che esegue i calcoli su cavo tramite la "calcolatrice"
 		  - corretto baco su db_cavoroute "query_codifica"
 		  - aggiornata tabella di codifica "creazione_funzione_scodificacable.sql": codice_inf NODIG e FOCOM
+		  - nessuna scorta +2 per n_mt_occ con posa=aereo
 	5.2:  - abilitati i collegamenti PTA-PFS: da testare
 		  - tolto pulsante "online manual" dalla maschera di help
 		  - nuovi calcoli per la primaria: da testare

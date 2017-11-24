@@ -82,6 +82,13 @@ UPDATE cavo SET
     n_mt_occ_2 = NULL,
     n_mt_occ_cd = NULL
 WHERE flag_posa ~* '.*no.*';
+
+UPDATE cavo SET
+    n_mt_occ = CASE
+    WHEN tot_cavi=0 THEN 0
+    ELSE tot_cavi
+    END
+WHERE posa ~* '.*aereo.*';
 --fine nuove regole mai Gatti 14 novembre 2017
 
 
