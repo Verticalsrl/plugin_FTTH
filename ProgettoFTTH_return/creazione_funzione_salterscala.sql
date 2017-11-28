@@ -17,6 +17,10 @@ BEGIN
 
 
 BEGIN
+IF tablename=='scala'
+THEN
+EXECUTE format('ALTER TABLE IF EXISTS %s.%s DROP COLUMN IF EXISTS gid;', schemaname);
+END IF;
 EXECUTE format('ALTER TABLE IF EXISTS %s.%s ADD COLUMN gid serial;', schemaname, table_name);
 EXCEPTION WHEN others THEN
       RAISE NOTICE 'Error code: %', SQLSTATE;

@@ -613,8 +613,8 @@ class ProgettoFTTH:
                     try:
                         test_conn.close()
                     except:
-                        msg.setText('server closed the connection unexpectedly')
-                        msg.setIcon(QMessageBox.Critical)
+                        msg.setText("La procedura e' andata a buon fine oppure la connessione al server si e' chiusa inaspettatamente: controlla il messaggio nella casella 'controllo'")
+                        msg.setIcon(QMessageBox.Warning)
                         msg.setStandardButtons(QMessageBox.Ok)
                         retval = msg.exec_()
             

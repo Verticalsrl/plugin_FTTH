@@ -11,10 +11,10 @@ name=ProgettoFTTH_return
 qgisMinimumVersion=2.14
 qgisMaximumVersion=2.14
 description=Associazione contatori - PD - giunti - PFS - PFP
-version=5.3.4
+version=5.3.5
 author=A.R.Gaeta/Vertical Srl
 email=info@vertical.digital
-release_date=2017/11/24
+release_date=2017/11/28
 
 about=Questo plugin permette di gestire la progettazione della rete ENEL-FTTH
 
@@ -26,41 +26,43 @@ repository=github.com
 
 # Uncomment the following line and add your changelog:
 changelog=
-	5.3:  - tolta la condizione "AND tipo_posa ~* '.*interr.*'" per il calcolo di n_mt_occ su scalccable
-		  - nel routing, aggiungo "WHERE source IS NOT NULL" a tutti i tipi di associazione per la creazione di cavoroute in db_cavoroute. Strano, non era mai successo prima...da tenere sotto controllo
-		  - ripristinata formula "f_192 = cavi_pr + cavi_bh + cavi_cd" su db_cavoroute
-		  - riordinate le procedure di calcolo del cavo, separando la fuzione che crea la tabella dalla funzione che esegue i calcoli su cavo tramite la "calcolatrice"
-		  - corretto baco su db_cavoroute "query_codifica"
-		  - aggiornata tabella di codifica "creazione_funzione_scodificacable.sql": codice_inf NODIG e FOCOM
-		  - nessuna scorta +2 per n_mt_occ con posa=aereo
-	5.2:  - abilitati i collegamenti PTA-PFS: da testare
-		  - tolto pulsante "online manual" dalla maschera di help
-		  - nuovi calcoli per la primaria: da testare
-		  - calcoli della primaria su n_mt_occ_XXX spostati nella funzione s_calc_cable
-		  - modificati i parametri WIND e RACCORDO nella tabella di decodifica definita nella funzione s_calc_cable
-		  - rivista la funzione append_scala su progetto_ftth.py in cui non elimino piu' la tabella ma sfrutto l'opzione overwrite
-		  - aggiunta funzione append_scala_DbManager riscritta cosniderando che le nuove scale da appendere siano gia' state precedentemene importate con DbManager in modo tale da bypassare eventuali errori dati dalla procedura classica
-		  - piccola correzione in append_scale: aggiorno gli id_scala solo dove sono NULL onde evitare conflitti a valle nel caso di associazioni gia' effettuate
-		  - corretto baco su connessioni PTA-PFS: l'id_pfs e id_pfp non venivano riportati a valle del PTA.
-		  - calcolo del campo n_pd tenendo anche conto del numero di scale e giunti connessi direttamente al PFS. Di conseguenza modificati i trigger delete_giunto e delete_scala
-		  - modifica dello stile del layer scala: la label puntava al campo n_ui_orig invece di n_ui_originali
-		  - aggiunta dello strumento "compare" ovvero "verifica delle associazioni", seppur incompleto
-		  - aggiornamento formule per calcolo tot_cavi-xx e n_mt_occ_xx su db_cavoroute e scalccable
-	5.1:  - per importare nuove scale eseguo controllo su tipo geometria Point/MultiPoint cosi da non generare futili conflitti
-		  - modificata maschera "config sezione C" per rendere piu' esplicite le uguaglianze fatte in termini di vincoli sulle UI per le connessioni a cascata SCALA_SCALA e le fibre per altre varie associazioni
-		  - in particolare modificata l'associazione delle UI per le SCALE prendendole dal GIUNTO
-		  - altri aggiustamenti nell'inserimento di campi da scale_append al layer di destinazione scale
-		  - aggiunti altri campi al layer cavo tramite funzione s_alter_table_fn
-		  - al lancio della funzione split_lines_to_lines popolo molti piu' campi del nuovo cavo prendendoli dal cavo precedente
-		  - host e porta di default: riferimento a macchina Linux
-		  - alcune prove per risolvere il baco su append_scale sugli altri pc...
-		  - prime modifiche per abilitare i collegamenti PTA-PFS
-		  - prime modifiche per i nuovi calcoli sulla primaria
-		  - aggiungo codice_ins nei campi che porto dietro dopo split_lines
-	5.0:  - aggiornata funzione DB public.s_alter_table_fn
-		  - creata nuova funzione DB public.s_alter_scala_fn
-		  - aggiunta funzione run_append in progetto_ftth per agganciare delle nuove scale da shp al layer scala gia' esistente. Controllo sulle nuove geometrie su: geometrie duplicate con quelle di destinazione; n_ui nullo; srid differente con le scale di destinazione
-		  - aggiunto link webgis.map-hosting.it/walkout.htm? al tasto help
+    5.3:  - tolta la condizione "AND tipo_posa ~* '.*interr.*'" per il calcolo di n_mt_occ su scalccable
+          - nel routing, aggiungo "WHERE source IS NOT NULL" a tutti i tipi di associazione per la creazione di cavoroute in db_cavoroute. Strano, non era mai successo prima...da tenere sotto controllo
+          - ripristinata formula "f_192 = cavi_pr + cavi_bh + cavi_cd" su db_cavoroute
+          - riordinate le procedure di calcolo del cavo, separando la fuzione che crea la tabella dalla funzione che esegue i calcoli su cavo tramite la "calcolatrice"
+          - corretto baco su db_cavoroute "query_codifica"
+          - aggiornata tabella di codifica "creazione_funzione_scodificacable.sql": codice_inf NODIG e FOCOM
+          - nessuna scorta +2 per n_mt_occ con posa=aereo
+          - corretti alcuni bachi su campo "posa" che diventa "tipo_posa" in s_calc_cable
+          - elimino colonna gid se inizializzo nuovo schema partendo da scale in modo da rigenerarlo seriale, nella funzione s_alter_scala_fn
+    5.2:  - abilitati i collegamenti PTA-PFS: da testare
+          - tolto pulsante "online manual" dalla maschera di help
+          - nuovi calcoli per la primaria: da testare
+          - calcoli della primaria su n_mt_occ_XXX spostati nella funzione s_calc_cable
+          - modificati i parametri WIND e RACCORDO nella tabella di decodifica definita nella funzione s_calc_cable
+          - rivista la funzione append_scala su progetto_ftth.py in cui non elimino piu' la tabella ma sfrutto l'opzione overwrite
+          - aggiunta funzione append_scala_DbManager riscritta cosniderando che le nuove scale da appendere siano gia' state precedentemene importate con DbManager in modo tale da bypassare eventuali errori dati dalla procedura classica
+          - piccola correzione in append_scale: aggiorno gli id_scala solo dove sono NULL onde evitare conflitti a valle nel caso di associazioni gia' effettuate
+          - corretto baco su connessioni PTA-PFS: l'id_pfs e id_pfp non venivano riportati a valle del PTA.
+          - calcolo del campo n_pd tenendo anche conto del numero di scale e giunti connessi direttamente al PFS. Di conseguenza modificati i trigger delete_giunto e delete_scala
+          - modifica dello stile del layer scala: la label puntava al campo n_ui_orig invece di n_ui_originali
+          - aggiunta dello strumento "compare" ovvero "verifica delle associazioni", seppur incompleto
+          - aggiornamento formule per calcolo tot_cavi-xx e n_mt_occ_xx su db_cavoroute e scalccable
+    5.1:  - per importare nuove scale eseguo controllo su tipo geometria Point/MultiPoint cosi da non generare futili conflitti
+          - modificata maschera "config sezione C" per rendere piu' esplicite le uguaglianze fatte in termini di vincoli sulle UI per le connessioni a cascata SCALA_SCALA e le fibre per altre varie associazioni
+          - in particolare modificata l'associazione delle UI per le SCALE prendendole dal GIUNTO
+          - altri aggiustamenti nell'inserimento di campi da scale_append al layer di destinazione scale
+          - aggiunti altri campi al layer cavo tramite funzione s_alter_table_fn
+          - al lancio della funzione split_lines_to_lines popolo molti piu' campi del nuovo cavo prendendoli dal cavo precedente
+          - host e porta di default: riferimento a macchina Linux
+          - alcune prove per risolvere il baco su append_scale sugli altri pc...
+          - prime modifiche per abilitare i collegamenti PTA-PFS
+          - prime modifiche per i nuovi calcoli sulla primaria
+          - aggiungo codice_ins nei campi che porto dietro dopo split_lines
+    5.0:  - aggiornata funzione DB public.s_alter_table_fn
+          - creata nuova funzione DB public.s_alter_scala_fn
+          - aggiunta funzione run_append in progetto_ftth per agganciare delle nuove scale da shp al layer scala gia' esistente. Controllo sulle nuove geometrie su: geometrie duplicate con quelle di destinazione; n_ui nullo; srid differente con le scale di destinazione
+          - aggiunto link webgis.map-hosting.it/walkout.htm? al tasto help
     4.9:  - baco in split_lines: lanciando il comando piu volte successive eliminava man mano i vecchi cavi.
           - modificato funzione public.pgr_createtopology: dava errore in una query secondo me malposta. Andra' rilanciata a mano su tutti i nuovi DB
           - aggiunta icona 'updatedb' per rilanciare sul DB in uso le ultime versioni piu' aggiornate di alcune funzioni presenti sullo schema public, per agevolare il lavoro
