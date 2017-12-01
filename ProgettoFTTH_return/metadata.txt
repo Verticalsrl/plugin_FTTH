@@ -11,10 +11,10 @@ name=ProgettoFTTH_return
 qgisMinimumVersion=2.14
 qgisMaximumVersion=2.14
 description=Associazione contatori - PD - giunti - PFS - PFP
-version=5.3.5
+version=5.3.6
 author=A.R.Gaeta/Vertical Srl
 email=info@vertical.digital
-release_date=2017/11/28
+release_date=2017/12/01
 
 about=Questo plugin permette di gestire la progettazione della rete ENEL-FTTH
 
@@ -35,6 +35,7 @@ changelog=
           - nessuna scorta +2 per n_mt_occ con posa=aereo
           - corretti alcuni bachi su campo "posa" che diventa "tipo_posa" in s_calc_cable
           - elimino colonna gid se inizializzo nuovo schema partendo da scale in modo da rigenerarlo seriale, nella funzione s_alter_scala_fn
+		  - FROM_TO_RULES['SCALA'] = FROM_TO_RULES['GIUNTO']: corretto baco, in alcuni casi era ancora legato a PTA
     5.2:  - abilitati i collegamenti PTA-PFS: da testare
           - tolto pulsante "online manual" dalla maschera di help
           - nuovi calcoli per la primaria: da testare

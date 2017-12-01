@@ -1525,7 +1525,7 @@ class ProgettoFTTH:
                 'PFP': {'MIN_UI': UI_PFP_min, 'MAX_UI': UI_PFP_max, 'MAX_CONT': CONT_PFP_max}
             }
             FROM_TO_RULES['GIUNTO_F_dev'] = FROM_TO_RULES['GIUNTO']
-            FROM_TO_RULES['SCALA'] = FROM_TO_RULES['PTA']
+            FROM_TO_RULES['SCALA'] = FROM_TO_RULES['GIUNTO']
         except NameError as err:
             self.dlg_config.txtFeedback.setText(err.args[0])
             return 0;
@@ -4111,7 +4111,7 @@ PFS: %(id_pfs)s"""
                 'PFS': {'MIN_UI': results_var['pfs_ui_min'], 'MAX_UI': results_var['pfs_ui_max'], 'MAX_CONT': results_var['pfs_pd_max']},
                 'PFP': {'MIN_UI': results_var['pfp_ui_min'], 'MAX_UI': results_var['pfp_ui_max'], 'MAX_CONT': results_var['pfp_pfs_max']}
             }
-            FROM_TO_RULES['SCALA'] = FROM_TO_RULES['PTA']
+            FROM_TO_RULES['SCALA'] = FROM_TO_RULES['GIUNTO']
             
             #Mentre ci sono mi scarico anche le variabili di connessione delle fibre:
             query_fibre = """ SELECT scala_pta_f4, scala_pta_f12, scala_pta_f24, scala_pta_f48, scala_pta_f72, scala_pta_f96, scala_pta_f144, scala_pta_f192, scala_giunto_f4 , scala_giunto_f12, scala_giunto_f24, scala_giunto_f48, scala_giunto_f72, scala_giunto_f96, scala_giunto_f144, scala_giunto_f192, scala_pd_f4, scala_pd_f12, scala_pd_f24, scala_pd_f48, scala_pd_f72, scala_pd_f96, scala_pd_f144, scala_pd_f192, scala_pfs_f4, scala_pfs_f12, scala_pfs_f24, scala_pfs_f48, scala_pfs_f72, scala_pfs_f96, scala_pfs_f144, scala_pfs_f192, giunto_pd_f4, giunto_pd_f12, giunto_pd_f24, giunto_pd_f48, giunto_pd_f72, giunto_pd_f96, giunto_pd_f144, giunto_pd_f192, pta_pd_f4, pta_pd_f12, pta_pd_f24, pta_pd_f48, pta_pd_f72, pta_pd_f96, pta_pd_f144, pta_pd_f192, pd_pfs_f4, pd_pfs_f12, pd_pfs_f24, pd_pfs_f48, pd_pfs_f72, pd_pfs_f96, pd_pfs_f144, pd_pfs_f192, pfs_pfp_f96 FROM %s.variabili_progetto_return LIMIT 1; """ % (theSchema)
@@ -4275,7 +4275,7 @@ PFS: %(id_pfs)s"""
                 'PFS': {'MIN_UI': results_var['pfs_ui_min'], 'MAX_UI': results_var['pfs_ui_max'], 'MAX_CONT': results_var['pfs_pd_max']},
                 'PFP': {'MIN_UI': results_var['pfp_ui_min'], 'MAX_UI': results_var['pfp_ui_max'], 'MAX_CONT': results_var['pfp_pfs_max']}
             }
-            FROM_TO_RULES['SCALA'] = FROM_TO_RULES['PTA']
+            FROM_TO_RULES['SCALA'] = FROM_TO_RULES['GIUNTO']
             #Utils.logMessage(str(FROM_TO_RULES['GIUNTO']))
         
             dict_cur.close()
