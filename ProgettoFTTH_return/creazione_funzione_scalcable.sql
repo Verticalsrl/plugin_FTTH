@@ -31,6 +31,22 @@ UPDATE cavo
     WHEN n_mt_occ='' THEN '0'
     WHEN n_mt_occ IS NULL THEN '0'
     END;
+    
+UPDATE ac05w.cavo
+    SET cavi_pr = CASE
+    WHEN cavi_pr IS NULL THEN 0
+    END;
+    
+UPDATE ac05w.cavo
+    SET cavi_bh = CASE
+    WHEN cavi_bh IS NULL THEN 0
+    END;
+    
+UPDATE ac05w.cavo
+    SET cavi_cd = CASE
+    WHEN cavi_cd IS NULL THEN 0
+    END;
+
 
 --nuove regole mail Gatti 14 novembre 2017:
 UPDATE cavo SET cavi2 = CASE
