@@ -32,21 +32,14 @@ UPDATE cavo
     WHEN n_mt_occ IS NULL THEN '0'
     END;
     
-UPDATE ac05w.cavo
-    SET cavi_pr = CASE
-    WHEN cavi_pr IS NULL THEN 0
-    END;
+UPDATE cavo
+    SET cavi_pr = 0 WHERE cavi_pr IS NULL;
     
-UPDATE ac05w.cavo
-    SET cavi_bh = CASE
-    WHEN cavi_bh IS NULL THEN 0
-    END;
+UPDATE cavo
+    SET cavi_bh = 0 WHERE cavi_bh IS NULL;
     
-UPDATE ac05w.cavo
-    SET cavi_cd = CASE
-    WHEN cavi_cd IS NULL THEN 0
-    END;
-
+UPDATE cavo
+    SET cavi_cd = 0 WHERE cavi_cd IS NULL;
 
 --nuove regole mail Gatti 14 novembre 2017:
 UPDATE cavo SET cavi2 = CASE
@@ -55,9 +48,9 @@ UPDATE cavo SET cavi2 = CASE
 END;
 
 UPDATE cavo SET 
-    tot_cavi1 = cavi_pr + cavi_bh,
-    tot_cavi2 = cavi2,
-    tot_cavicd = cavi_cd;
+    tot_cavi1 = COALESCE(cavi_pr, 0) + COALESCE(cavi_bh, 0),
+    tot_cavi2 = COALESCE(cavi2, 0),
+    tot_cavicd = COALESCE(cavi_cd, 0);
 
 UPDATE cavo SET
     tot_cavi = tot_cavi1 + tot_cavi2 + tot_cavicd;
@@ -84,8 +77,8 @@ UPDATE cavo SET
 WHERE flag_posa ~* '.*si.*';
 
 UPDATE cavo SET 
-    n_mt_occ = n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int,
-    n_mtubo = ceil((n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int)::double precision / 7) || 'x7'
+    n_mt_occ = COALESCE(n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int, '0'),
+    n_mtubo = ceil(( COALESCE(n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int, '0') )::double precision / 7) || 'x7'
 WHERE flag_posa ~* '.*si.*';
 
 UPDATE cavo SET
