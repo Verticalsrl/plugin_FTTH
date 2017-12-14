@@ -11,10 +11,10 @@ name=ProgettoFTTH_return
 qgisMinimumVersion=2.14
 qgisMaximumVersion=2.14
 description=Associazione contatori - PD - giunti - PFS - PFP
-version=5.3.7
+version=5.3.8
 author=A.R.Gaeta/Vertical Srl
 email=info@vertical.digital
-release_date=2017/12/05
+release_date=2017/12/14
 
 about=Questo plugin permette di gestire la progettazione della rete ENEL-FTTH
 

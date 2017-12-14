@@ -1458,7 +1458,7 @@ def recupero_ui_cavo(dest_dir, self, theSchema, epsg_srid):
     '''
     
     #Da skype con Gatti del 14 Novembre 2017: tot_cavi1, tot_cavi2, tot_cavicd: questi campi li deve calcolare il plugin. Vengono riviste inoltre alcune formule, altre riportate su creazione_funzione_scalcable.sql
-    query_codice_ins = "UPDATE %s.cavo SET f_192 = cavi_pr + cavi_bh + cavi_cd;" % (theSchema)
+    query_codice_ins = "UPDATE %s.cavo SET f_192 = COALESCE(cavi_pr, 0) + COALESCE(cavi_bh, 0) + COALESCE(cavi_cd, 0);" % (theSchema)
     cur_update.execute(query_codice_ins)
     test_conn.commit()
     

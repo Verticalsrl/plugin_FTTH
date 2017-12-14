@@ -26,11 +26,12 @@ FROM public.nuova_codifica a
 WHERE a.codice_inf = cavo.codice_inf;
 */
 
-UPDATE cavo
-    SET n_mt_occ = CASE
-    WHEN n_mt_occ='' THEN '0'
-    WHEN n_mt_occ IS NULL THEN '0'
-    END;
+UPDATE cavo SET
+    n_mt_occ = '0',
+    n_mt_occ_1 = '0',
+    n_mt_occ_2 = '0',
+    n_mt_occ_cd = '0',
+    n_mtubo = '0';
     
 UPDATE cavo
     SET cavi_pr = 0 WHERE cavi_pr IS NULL;
@@ -40,6 +41,9 @@ UPDATE cavo
     
 UPDATE cavo
     SET cavi_cd = 0 WHERE cavi_cd IS NULL;
+
+UPDATE cavo
+    SET cavi2 = 0;
 
 --nuove regole mail Gatti 14 novembre 2017:
 UPDATE cavo SET cavi2 = CASE
@@ -53,7 +57,7 @@ UPDATE cavo SET
     tot_cavicd = COALESCE(cavi_cd, 0);
 
 UPDATE cavo SET
-    tot_cavi = tot_cavi1 + tot_cavi2 + tot_cavicd;
+    tot_cavi = COALESCE(tot_cavi1, 0) + COALESCE(tot_cavi2, 0) + COALESCE(tot_cavicd, 0);
 
 UPDATE cavo SET 
     n_mt_occ_1 = CASE
@@ -77,25 +81,25 @@ UPDATE cavo SET
 WHERE flag_posa ~* '.*si.*';
 
 UPDATE cavo SET 
-    n_mt_occ = COALESCE(n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int, '0'),
+    n_mt_occ = COALESCE(n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int, '0')::text,
     n_mtubo = ceil(( COALESCE(n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int, '0') )::double precision / 7) || 'x7'
 WHERE flag_posa ~* '.*si.*';
 
 UPDATE cavo SET
     n_mt_occ = CASE
-    WHEN tot_cavi=0 THEN 0
-    ELSE tot_cavi+2
+    WHEN tot_cavi=0 THEN '0'
+    ELSE (tot_cavi+2)::text
     END,
-    n_mtubo = NULL,
-    n_mt_occ_1 = NULL,
-    n_mt_occ_2 = NULL,
-    n_mt_occ_cd = NULL
+    n_mtubo = '0',
+    n_mt_occ_1 = '0',
+    n_mt_occ_2 = '0',
+    n_mt_occ_cd = '0'
 WHERE flag_posa ~* '.*no.*';
 
 UPDATE cavo SET
     n_mt_occ = CASE
-    WHEN tot_cavi=0 THEN 0
-    ELSE tot_cavi
+    WHEN tot_cavi=0 THEN '0'
+    ELSE tot_cavi::text
     END
 WHERE tipo_posa ~* '.*aereo.*';
 --fine nuove regole mai Gatti 14 novembre 2017
