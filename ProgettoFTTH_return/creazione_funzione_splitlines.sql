@@ -221,6 +221,21 @@ EXECUTE format('DROP INDEX IF EXISTS %s.cavo_target_idx', schemaname);
 EXECUTE 'ALTER TABLE cavo_corretto ADD PRIMARY KEY (gid)';
 EXECUTE 'ALTER TABLE cavo_corretto RENAME TO cavo';
 
+
+--19/12/2017: a questo punto devo correggere il nuovo cavo, poiche' si sono ritrovati dei cavi originari ancora presenti, probabilmente per un erroneo disegno del layer. Lancio le funzioni per creare le viste:
+EXECUTE format('SELECT public.split_lines_to_lines_viste(''%s'', %s, ''%s'');', schemaname, epsgsrid, time_epoch);
+--Sostituisco le vecchie linee errate con la corretta geometria. ATTENZIONE! se ce ne sono piu' di 1 questo inserimento e' CASUALE! Per questo motivo, nella query successiva, inseriro' il criterio "NOT ST_Equals"
+EXECUTE format('UPDATE %s.cavo SET geom=a.geom FROM %s.v_cavi_ricalcolati a WHERE a.gid=cavo.gid', schemaname, schemaname);
+--inserisco le nuove linee: chiaramente il gid su cavo deve essere SERIAL!
+EXECUTE format('INSERT INTO %s.cavo (gid_old, geom) (SELECT a.gid_old, a.geom FROM %s.v_cavi_ricalcolati_insert a, %s.cavo WHERE a.gid_old=cavo.gid AND NOT ST_Equals(a.geom, cavo.geom))', schemaname, schemaname, schemaname);
+--ripulisco eventuali geometrie DOPPIE: non so perche si creino...
+EXECUTE format('DELETE FROM %s.cavo USING %s.cavo a WHERE ST_Equals(cavo.geom, a.geom) AND cavo.gid < a.gid', schemaname, schemaname);
+--Nel caso volessi ripulire schemi in cui il routing e' gia' stato avviato e non si vuol rifare il tutto e mantenere quei cavi a cui sono associati delle n_ui puoi provare a lanciare (manualmente) la query seguente, anche se resta fortemente consigliato RIFARE il routing:
+--DELETE FROM cavo USING cavo a WHERE ST_Equals(cavo.geom, a.geom) AND cavo.n_ui < a.n_ui;
+--Aggiorno i campi:
+EXECUTE format('UPDATE %s.cavo SET codice_ins = b.codice_ins, codice_inf = b.codice_inf, tipo_pav=b.tipo_pav, n_mtubo=b.n_mtubo, n_tubi=b.n_tubi, d_tubi=b.d_tubi, libero=b.libero, n_mt_occ=b.n_mt_occ, mod_mtubo=b.mod_mtubo, tipo_minit=b.tipo_minit, tipo_posa=b.tipo_posa, posa_dett=b.posa_dett, flag_posa=b.flag_posa, tipo_scavo=b.tipo_scavo, id_pop_end=b.id_pop_end, cod_belf=b.cod_belf, lotto=b.lotto, length_m = ST_Length(cavo.geom) FROM %s.cavo_%s b WHERE b.gid=cavo.gid_old AND cavo.codice_inf IS NULL;', schemaname, schemaname, time_epoch);
+
+
 EXECUTE 'SET search_path = public, topology;';
 
 RETURN true;
@@ -230,3 +245,89 @@ $BODY$
   COST 100;
 ALTER FUNCTION public.split_lines_to_lines_conclusivo(text, integer) OWNER TO operatore;
 COMMENT ON FUNCTION public.split_lines_to_lines_conclusivo(text, integer) IS 'pulizia di cavo spezzando le linee alla intersezione nodo-nodo con altre linee';
+
+
+
+CREATE OR REPLACE FUNCTION public.split_lines_to_lines_viste(
+    schemaname text,
+    epsgsrid integer,
+	time_old_table text)
+  RETURNS boolean AS
+$BODY$
+  DECLARE layerid integer;
+  schemaname text := $1;
+  epsg_srid integer := $2;
+  time_old_table text := $3;
+BEGIN
+
+EXECUTE 'SET search_path = ' || quote_ident(schemaname) || ', public;';
+
+EXECUTE format('CREATE OR REPLACE VIEW v_cavi_spezzettati AS
+WITH cavo_originale_ancora_presente AS (
+SELECT a.gid_old, a.gid FROM cavo a, cavo_%s b
+WHERE ST_Equals(a.geom, b.geom) AND a.gid_old=b.gid
+AND a.gid_old IN (
+SELECT gid_old FROM cavo GROUP BY gid_old HAVING count(*) > 1
+) --ORDER BY gid_old
+)
+--unione delle geometrie spezzettate
+SELECT a.gid_old, (ST_Union(a.geom))::geometry(Multilinestring, %s) AS geom FROM cavo a
+WHERE a.gid NOT IN (SELECT gid FROM cavo_originale_ancora_presente)
+AND a.gid_old IN (
+SELECT gid_old FROM cavo GROUP BY gid_old HAVING count(*) > 1
+)
+GROUP BY gid_old ORDER BY gid_old;', time_old_table, epsg_srid);
+EXECUTE 'ALTER TABLE v_cavi_spezzettati OWNER TO operatore';
+
+EXECUTE format('CREATE OR REPLACE VIEW v_cavi_ricalcolati AS
+--cavi originari rimasti nel cavo finale da ridurre:
+WITH cavo_originale_ancora_presente AS (
+SELECT a.gid_old, a.gid, a.geom FROM cavo a, cavo_%s b
+WHERE ST_Equals(a.geom, b.geom) AND a.gid_old=b.gid
+AND a.gid_old IN (
+SELECT gid_old FROM cavo GROUP BY gid_old HAVING count(*) > 1
+)
+)
+SELECT ROW_NUMBER() OVER() AS id, foo.gid, foo.gid_old, foo.geom FROM (
+SELECT a.gid, a.gid_old,
+--il problema e che essendo una MultiLinestring crea linee non continue! Le spezzo e le ricreo Multi perche cavo e Multi:
+ST_Multi((st_dump(ST_Difference(a.geom, b.geom))).geom)::geometry(MultiLineString,%s) AS geom
+FROM cavo_originale_ancora_presente a, v_cavi_spezzettati b
+WHERE a.gid_old = b.gid_old
+) AS foo, v_cavi_spezzettati b
+--recupero solo le nuove linee perche ne crea alcune sovrapposte a quelle spezzettate, non so perche:
+WHERE foo.gid_old=b.gid_old AND NOT ST_Contains(ST_Buffer(b.geom, 1), foo.geom)
+ORDER BY foo.gid_old;', time_old_table, epsg_srid);
+EXECUTE 'ALTER TABLE v_cavi_ricalcolati OWNER TO operatore';
+
+EXECUTE format('CREATE OR REPLACE VIEW v_cavi_ricalcolati_insert AS
+--cavi originari rimasti nel cavo finale da ridurre:
+WITH cavo_originale_ancora_presente AS (
+SELECT a.gid AS gid_old, a.geom FROM cavo_finale a, cavo_%s b
+WHERE ST_Equals(a.geom, b.geom) AND a.gid=b.gid
+AND a.gid IN (
+SELECT gid_old FROM cavo GROUP BY gid_old HAVING count(*) > 1
+)
+)
+SELECT ROW_NUMBER() OVER() AS id, foo.gid_old, foo.geom FROM (
+SELECT a.gid_old,
+--il problema e che essendo una MultiLinestring crea linee non continue! Le spezzo e le ricreo Multi perche cavo e Multi:
+ST_Multi((st_dump(ST_Difference(a.geom, b.geom))).geom)::geometry(MultiLineString,%s) AS geom
+FROM cavo_originale_ancora_presente a, v_cavi_spezzettati b
+WHERE a.gid_old = b.gid_old
+) AS foo, v_cavi_spezzettati b
+--recupero solo le nuove linee perche ne crea alcune sovrapposte a quelle spezzettate, non so perche:
+WHERE foo.gid_old=b.gid_old AND NOT ST_Contains(ST_Buffer(b.geom, 1), foo.geom)
+ORDER BY foo.gid_old;', time_old_table, epsg_srid);
+EXECUTE 'ALTER TABLE v_cavi_ricalcolati_insert OWNER TO operatore';
+
+EXECUTE 'SET search_path = public, topology;';
+
+RETURN true;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION public.split_lines_to_lines_viste(text, integer, text) OWNER TO operatore;
+COMMENT ON FUNCTION public.split_lines_to_lines_viste(text, integer, text) IS 'calcola viste utili per pulizia cavo dopo lo split';
+
