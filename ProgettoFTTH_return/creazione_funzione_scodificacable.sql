@@ -85,6 +85,8 @@ INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,po
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'TRINCEA NORMALE_ATT','scavo tradizionale','fender','10/14','interrato','in tubo','si');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
+'ADDUZIONE_SCAVO','scavo tradizionale','singolo','10/14','interrato','in tubo','si');
+INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'NODIG','No-dig','bandle','10/14','interrato','in tubo','si');
 INSERT INTO public.nuova_codifica (codice_inf,tipo_scavo,tipo_minit,mod_mtubo,posa,posa_dett,flag_posa) VALUES (
 'NO_DIG','No-dig','bandle','10/14','interrato','in tubo','si');

@@ -113,14 +113,20 @@ UPDATE cavo
 SET n_mtubo = NULL
 WHERE tipo_posa IS NULL AND flag_posa IS NULL;
 
+UPDATE cavo SET
+	n_tubi = 1,
+	n_mtubo = NULL,
+	n_mt_occ = CASE
+	WHEN tot_cavi=0 THEN '0'
+    ELSE (tot_cavi+1)::text
+    END
+WHERE codice_inf = 'ADDUZIONE_SCAVO';
 
-UPDATE cavo
-SET n_tubi = 3
+UPDATE cavo SET
+	n_tubi = 3,
+	d_tubi = 50
 WHERE codice_inf = 'TRINCEA NORMALE_ATT';
 
-UPDATE cavo
-SET d_tubi = 50
-WHERE codice_inf = 'TRINCEA NORMALE_ATT';
 
 RAISE NOTICE 'calcolo sui campi di cavo ultimato';
 
