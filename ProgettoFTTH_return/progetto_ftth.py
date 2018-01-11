@@ -61,6 +61,7 @@ from progetto_ftth_config_dockwidget import ProgettoFTTHConfigDockWidget
 from progetto_ftth_compare_dockwidget import ProgettoFTTHCompareDockWidget
 from progetto_ftth_solid_dockwidget import ProgettoFTTHSolidDockWidget
 from progetto_ftth_export_dockwidget import ProgettoFTTHExportDockWidget
+from progetto_ftth_cloneschema_dockwidget import ProgettoFTTHCloneschemaDockWidget
 from progetto_ftth_help_dockwidget import ProgettoFTTHHelpDockWidget
 from progetto_ftth_append_dockwidget import ProgettoFTTHAppendDockWidget
 #import os.path
@@ -244,6 +245,7 @@ class ProgettoFTTH:
         self.dlg_compare = ProgettoFTTHCompareDockWidget()
         self.dlg_solid = ProgettoFTTHSolidDockWidget()
         self.dlg_export = ProgettoFTTHExportDockWidget()
+        self.dlg_cloneschema = ProgettoFTTHCloneschemaDockWidget()
         self.dlg_append = ProgettoFTTHAppendDockWidget()
         self.dlg_help = ProgettoFTTHHelpDockWidget()
 
@@ -292,6 +294,8 @@ class ProgettoFTTH:
         
         self.dlg_export.dirBrowse_btn.clicked.connect(self.select_output_dir_export)
         self.dlg_export.exportBtn.clicked.connect(self.exportDB)
+        
+        self.dlg_cloneschema.cloneschemaBtn.clicked.connect(self.cloneschemaDB)
         
         self.dlg_append.shpBrowse_btn.clicked.connect(self.select_shp_scala_append)
         self.dlg_append.importBtn.clicked.connect(self.append_scala)
@@ -1383,6 +1387,120 @@ class ProgettoFTTH:
             QMessageBox.information(self.dock, self.dock.windowTitle(), 'Estrazione avvenuta con successo!')
             return 1
 
+    
+    def cloneschemaDB(self):
+        Utils.logMessage('CLONESCHEMA: inizio...')
+        msg = QMessageBox()
+        #recupero le info di connex al DB da un qualunque dei layer:
+        connInfo = SCALE_layer.source()
+        dest_dir = self.estrai_param_connessione(connInfo)
+        #schemaDB = theSchema
+        #recupero il nome indicato dall'utente per il nuovo schema da creare:
+        cloneschema_name_text = self.dlg_cloneschema.cloneschema_txt.text()
+        
+        test_conn = None
+        try:
+            test_conn = psycopg2.connect(dest_dir)
+            cur = test_conn.cursor()
+            cur.execute( "SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = '%s');" % (cloneschema_name_text) )
+            msg = QMessageBox()
+            if cur.fetchone()[0]==True:
+                msg.setText("ATTENZIONE! Lo schema indicato e' gia' esistente, eventuali tabelle gia' presenti al suo interno verranno sovrascritte: si desidera continuare?")
+                msg.setIcon(QMessageBox.Warning)
+                msg.setWindowTitle("Schema gia' esistente! Sovrascrivere dati con stesso nome?")
+                msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                retval = msg.exec_()
+                if (retval != 16384): #l'utente NON ha cliccato yes: sceglie di fermarsi, esco
+                    return False
+                elif (retval == 16384): #l'utente HA CLICCATO YES.
+                    #dovrei ELIMINARE il vecchio schema e creare quello nuovo:
+                    #cur.execute( "DROP SCHEMA %s CASCADE; CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION operatore;"  % (cloneschema_name_text, cloneschema_name_text) )
+                    cur.execute( "DROP SCHEMA %s CASCADE;"  % (cloneschema_name_text) )
+                    test_conn.commit()
+                    
+                    #in realta il nuovo schema NON lo creo io ma devo farlo creare dal DUMP!!
+                    #ALTER SCHEMA ac03w OWNER TO operatore;
+                    
+                    Utils.logMessage('CLONESCHEMA: eliminato vecchio schema con lo stesso nome del nuovo schema clonato indicato dall utente')
+            else:
+                msg.setText("ATTENZIONE! Lo schema indicato non e' presente sul DB: si conferma la sua creazione?")
+                msg.setIcon(QMessageBox.Warning)
+                msg.setWindowTitle("Schema non esistente: crearlo?")
+                msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                retval = msg.exec_()
+                if (retval != 16384): #l'utente NON ha cliccato yes: sceglie di fermarsi, esco
+                    return False
+                elif (retval == 16384): #l'utente HA CLICCATO YES. Posso continuare
+                    #in realta il nuovo schema NON lo creo io ma devo farlo creare dal DUMP!!
+                    Utils.logMessage('CLONESCHEMA: posso creare da zero il nuovo schema clone indicato dall utente')
+            
+            #DEVO CREARE IL NUOVO SCHEMA DAL DUMP DI QUELLO IN USO - prove per il momento NON funzionanti
+            import subprocess
+            #batcmd = "pg_dump -h %s -p %s -U %s --schema='%s' %s | sed 's/%s/%s/g' | psql -h %s -p %s -U %s -d %s" % (theHost, thePort, theUser, theSchema, theDbName, theSchema, cloneschema_name_text, theHost, thePort, theUser, theDbName)
+            batcmd = "pg_dump -h %s -p %s -U %s --schema='%s' %s " % (theHost, thePort, theUser, theSchema, theDbName)
+            Utils.logMessage( batcmd )
+            #result_cmd = subprocess.Popen([batcmd], shell=True)
+            #Utils.logMessage( str(dir(result_cmd) ) )
+            
+            batcmd = "pg_dump -h localhost -p 5433 -U operatore --schema='pc_ac02e' Enel_Test"
+            homedir = os.getenv("HOME")
+            schema='primo'
+            outdump = os.path.join(homedir, "dump_primo.sql")
+            
+            #os.system( "%s > %s" % (batcmd, outdump) )
+            
+            #os.system("pg_dump -U operatore --schema='%s' %s | sed 's/%s/%s/g' | psql -U operatore -d %s" % (theSchema, theDbName, theSchema, cloneschema_name_text, theDbName))
+            
+            #NON POSSO USARE IL METODO DUMP! DEVO:
+            # 0-creo il nuovo schema!
+            # A-listare tutte le tabelle del vecchio schema
+            # B-lanciare la funzione che crea i trigger, senza associarli alle tabelle, oppure non so cosa succede nella copia?
+            # C-creare le tabelle nel nuovo schema prendendole dal vecchiio: si porta dietro le primary key e le sequences??
+            # EXECUTE 'CREATE TABLE cavo_corretto ( LIKE cavo INCLUDING DEFAULTS INCLUDING CONSTRAINTS INCLUDING INDEXES )';
+            # ma con questo comando le creo vuote o piene??
+            #le crea VUOTE ma non va bene perche' punta alle stesse SEQUENCE dello schema vecchio!!
+            #ma se ci sono viste o funzioni?? Certo sarebbe meglio un DUMP ma come ho detto non si riesce a fare da utente...
+            
+            # 0:
+            #cur.execute( "CREATE SCHEMA IF NOT EXISTS %s AUTHORIZATION operatore; ALTER SCHEMA %s OWNER TO operatore;"  % (cloneschema_name_text,cloneschema_name_text) )
+            
+            
+            # A:
+            cur.execute( "SELECT table_name FROM information_schema.tables WHERE table_schema = '%s' AND table_type = 'BASE TABLE';" % (theSchema) )
+            #cur.fetchall()
+            for row in cur:
+                Utils.logMessage( 'Copio tabella %s' % (row) )
+                #CREATE TABLE IF NOT EXISTS ac06e.prova_clone2 ( LIKE pc_ac02e.cavo INCLUDING ALL )
+
+            
+            
+            #DEVI AGGIORANRE ORA LE TABELLE SECONDO L'ULTIMA VERSIONE DEL PLUGIN, E RIPORTARE LA VERSIONE DEL PLUGIN NEL COMMENTO DEL NUOVO SCHEMA
+
+            
+            
+            Utils.logMessage('ma se clicchi no esce fuori o fa comunque vedere questo messaggio??')
+            debug_text = "OK! Clonazione schema avvenuta con successo"
+            self.dlg_cloneschema.txtFeedback.setText(debug_text)
+                    
+        
+        except psycopg2.Error, e:
+            Utils.logMessage(str(e.pgcode) + str(e.pgerror)) #ERRORE: unsupported operand type(s) for +: 'NoneType' and 'NoneType'
+            debug_text = "Connessione al DB fallita!! Rivedere i dati e riprovare"
+            self.dlg_cloneschema.txtFeedback.setText(debug_text)
+            return 0
+        except SystemError, e:
+            debug_text = "Connessione al DB fallita!! Rivedere i dati e riprovare"
+            self.dlg_cloneschema.txtFeedback.setText(debug_text)
+            return 0
+        else:
+            Utils.logMessage('Clonazione dello schema ' + theSchema + ' in ' + cloneschema_name_text + ' avvenuta con successo')
+            QMessageBox.information(self.dock, self.dock.windowTitle(), 'Clonazione avvenuta con successo!')
+            return 1
+        finally:
+            if test_conn:
+                test_conn.close()
+    
+    
     #def inizializzaDB(con):
     def inizializzaDB(self):
         codice_lotto = self.dlg_config.schemaDB.text()
@@ -3286,6 +3404,13 @@ PFS: %(id_pfs)s"""
             text=self.tr(u'Esporta il progetto in shp'),
             callback=self.run_export,
             parent=self.iface.mainWindow())
+            
+        icon_path = ':/plugins/ProgettoFTTH/cloneschema_C83737.png'
+        self.add_action(
+            icon_path,
+            text=self.tr(u'Clona il progetto creando un altro schema nel DB'),
+            callback=self.run_cloneschema,
+            parent=self.iface.mainWindow())
         
         icon_path = ':/plugins/ProgettoFTTH/computo_C83737.png'
         self.add_action(
@@ -3459,6 +3584,19 @@ PFS: %(id_pfs)s"""
         # Run the dialog event loop
         result = self.dlg_export.exec_()
         self.dlg_export.txtFeedback.clear()
+        
+    def run_cloneschema(self):
+        result_init = self.inizializza_layer()
+        if (result_init==0):
+            return 0
+        #recupero le info di connex al DB da un qualunque dei layer:
+        connInfo = SCALE_layer.source()
+        db_dir = self.estrai_param_connessione(connInfo)
+        # show the dialog
+        self.dlg_cloneschema.show()
+        # Run the dialog event loop
+        result = self.dlg_cloneschema.exec_()
+        self.dlg_cloneschema.txtFeedback.clear()
         
     def run_metrico(self):
         result_init = self.inizializza_layer()
@@ -4176,6 +4314,10 @@ PFS: %(id_pfs)s"""
         
     def estrai_param_connessione(self, connInfo):
         global theSchema
+        global theDbName
+        global theHost
+        global thePort
+        global theUser
         theSchema = None
         theDbName = None
         theHost = None

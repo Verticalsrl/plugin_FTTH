@@ -44,4 +44,7 @@
 	<qresource prefix="/plugins/ProgettoFTTH" >
         <file>append_C83737.png</file>
     </qresource>
+	<qresource prefix="/plugins/ProgettoFTTH" >
+        <file>cloneschema_C83737.png</file>
+    </qresource>
 </RCC>
