@@ -11,10 +11,10 @@ name=ProgettoFTTH_return
 qgisMinimumVersion=2.14
 qgisMaximumVersion=2.14
 description=Associazione contatori - PD - giunti - PFS - PFP
-version=5.4.2
+version=5.4.3
 author=A.R.Gaeta/Vertical Srl
 email=info@vertical.digital
-release_date=2017/01/11
+release_date=2017/01/17
 
 about=Questo plugin permette di gestire la progettazione della rete ENEL-FTTH
 
@@ -28,7 +28,9 @@ repository=github.com
 changelog=
 	5.4:  - prima soluzione al problema di cavi duplicati dopo lo split_lines_to_lines. In realta non si trattava di un problema di duplicazione ma sovrapposizione e mantenimento del vecchio cavo "lungo". Restano ancora alcuni cavi non "splittati" e dunque sovrapposti ma il problema e' dovuto ad una scorretta geometria del cavo
 		  - aggiunto codice_inf "ADDUZIONE_SCAVO", secondo mail di Gatti del 8 Gen 2018
-		  - clonazione schema: IN SVILUPPO!
+		  - clonazione schema: IN SVILUPPO! Per il momento commento il callback run_cloneschema
+		  - nuove formule per calcolo fender n_mtubo n_mt_occ etc secondo mail Gatti del 16 Gen 2018
+		  - modificata la UI "solid" riabilitando il pulsante per il consolidamento delle aree PFS e PFP, escludendo pero la popolazione dei pozzetti
     5.3:  - tolta la condizione "AND tipo_posa ~* '.*interr.*'" per il calcolo di n_mt_occ su scalccable
           - nel routing, aggiungo "WHERE source IS NOT NULL" a tutti i tipi di associazione per la creazione di cavoroute in db_cavoroute. Strano, non era mai successo prima...da tenere sotto controllo
           - ripristinata formula "f_192 = cavi_pr + cavi_bh + cavi_cd" su db_cavoroute

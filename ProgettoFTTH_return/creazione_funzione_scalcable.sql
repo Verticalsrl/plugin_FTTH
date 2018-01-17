@@ -72,18 +72,20 @@ UPDATE cavo SET
     ELSE cavi2 + 2
     END,
     n_mt_occ_cd = CASE
-    WHEN cavi_cd = 14 THEN cavi_cd +4
-    WHEN cavi_cd > 8 THEN cavi_cd +3
-    WHEN cavi_cd > 4 THEN cavi_cd +2
-    WHEN cavi_cd > 0 THEN cavi_cd +1
-    ELSE 0
+    WHEN cavi_cd=0 THEN 0
+    ELSE cavi_cd + 3
     END
-WHERE flag_posa ~* '.*si.*';
+WHERE flag_posa ~* '.*si.*' AND tipo_posa ~* '.*interr.*';
 
 UPDATE cavo SET 
     n_mt_occ = COALESCE(n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int, '0')::text,
-    n_mtubo = ceil(( COALESCE(n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int, '0') )::double precision / 7) || 'x7'
-WHERE flag_posa ~* '.*si.*';
+    --n_mtubo = ceil(( COALESCE(n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int, '0') )::double precision / 7) || 'x7'
+	n_mtubo = (
+	ceil(( COALESCE(n_mt_occ_1::int, '0') )::double precision / 7) +
+	ceil(( COALESCE(n_mt_occ_2::int, '0') )::double precision / 7) +
+	ceil(( COALESCE(n_mt_occ_cd::int, '0') )::double precision / 7)
+	)::integer || 'x7'
+WHERE flag_posa ~* '.*si.*' AND tipo_posa ~* '.*interr.*';
 
 UPDATE cavo SET
     n_mt_occ = CASE
@@ -94,7 +96,7 @@ UPDATE cavo SET
     n_mt_occ_1 = '0',
     n_mt_occ_2 = '0',
     n_mt_occ_cd = '0'
-WHERE flag_posa ~* '.*no.*';
+WHERE flag_posa ~* '.*no.*' AND tipo_posa ~* '.*interr.*';
 
 UPDATE cavo SET
     n_mt_occ = CASE

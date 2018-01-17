@@ -1123,6 +1123,8 @@ class ProgettoFTTH:
             QMessageBox.warning(self.dock, self.dock.windowTitle(), "Aree PFS e PFP aggiornate con successo!\n Qualche area PFP ha pero' superato il numero di PD massimo consentito. Vedere il messaggio nella finestra")
             continuo_coi_pozzetti = 1
         #Continuo con il popolamento del layer "pozzetti"?
+        #Secondo mail di Gatti del 16 Gennaio 2018 questa fase la salto
+        '''
         if (continuo_coi_pozzetti==1):
             result_pozzetti = db_solid.popola_pozzetti(self, connInfo, theSchema, self.dlg_solid)
             if (result_pozzetti==0):
@@ -1131,6 +1133,7 @@ class ProgettoFTTH:
                 QMessageBox.information(self.dock, self.dock.windowTitle(), "Layer pozzetto popolato correttamente!")
         else:
             QMessageBox.warning(self.dock, self.dock.windowTitle(), "Layer 'pozzetti' NON popolato in quanto sono state riscontrate delle anomalie sulle aree PFS e PFP.")
+        '''
         
     
     def lancia_calcola_fibre(self):
@@ -3405,12 +3408,12 @@ PFS: %(id_pfs)s"""
             callback=self.run_export,
             parent=self.iface.mainWindow())
             
-        icon_path = ':/plugins/ProgettoFTTH/cloneschema_C83737.png'
+        '''icon_path = ':/plugins/ProgettoFTTH/cloneschema_C83737.png'
         self.add_action(
             icon_path,
             text=self.tr(u'Clona il progetto creando un altro schema nel DB'),
             callback=self.run_cloneschema,
-            parent=self.iface.mainWindow())
+            parent=self.iface.mainWindow())'''
         
         icon_path = ':/plugins/ProgettoFTTH/computo_C83737.png'
         self.add_action(

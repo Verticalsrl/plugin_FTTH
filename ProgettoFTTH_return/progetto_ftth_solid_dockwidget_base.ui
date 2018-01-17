@@ -43,7 +43,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.15094pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8.15094pt;&quot;&gt;Consolida progetto: calcolo aree PFS e PFP, pozzetti e fibre per i cavi.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8.15094pt;&quot;&gt;Consolida progetto: calcolo aree PFS e PFP, calcolo fibre per i cavi.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QTextBrowser" name="txtFeedback">
@@ -66,7 +66,7 @@ p, li { white-space: pre-wrap; }
     </rect>
    </property>
    <property name="title">
-    <string>Consolida aree PFS e PFP e pozzetti</string>
+    <string>Consolida aree PFS e PFP</string>
    </property>
    <property name="checkable">
     <bool>false</bool>
@@ -76,7 +76,7 @@ p, li { white-space: pre-wrap; }
    </property>
    <widget class="QToolButton" name="solid_btn_aree">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
@@ -87,7 +87,7 @@ p, li { white-space: pre-wrap; }
      </rect>
     </property>
     <property name="text">
-     <string>CONSOLIDA AREE PFP - PFS e Genera POZZETTI</string>
+     <string>CONSOLIDA AREE PFP - PFS</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_7">
@@ -100,7 +100,7 @@ p, li { white-space: pre-wrap; }
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Calcola il numero di contatori, giunti, pd etc per le aree PFS e PFP. Popola il layer dei pozzetti previo SVUOTAMENTO. L'operazione puo' venir lanciata tutte le volte che si desidera&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Calcola il numero di contatori, giunti, pd etc per le aree PFS e PFP. L'operazione puo' venir lanciata tutte le volte che si desidera&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
