@@ -47,4 +47,7 @@
 	<qresource prefix="/plugins/ProgettoFTTH" >
         <file>cloneschema_C83737.png</file>
     </qresource>
+	<qresource prefix="/plugins/ProgettoFTTH" >
+        <file>overlap_C83737.png</file>
+    </qresource>
 </RCC>

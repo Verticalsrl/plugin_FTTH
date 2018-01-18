@@ -3436,6 +3436,13 @@ PFS: %(id_pfs)s"""
             callback=self.run_cutcable,
             parent=self.iface.mainWindow())
             
+        icon_path = ':/plugins/ProgettoFTTH/overlap_C83737.png'
+        self.add_action(
+            icon_path,
+            text=self.tr(u'Controlla sovrapposizione tra cavi'),
+            callback=self.run_controlla_cavi_sovrapposti,
+            parent=self.iface.mainWindow())
+            
         icon_path = ':/plugins/ProgettoFTTH/calc_C83737.png'
         self.add_action(
             icon_path,
@@ -4127,6 +4134,88 @@ PFS: %(id_pfs)s"""
             if conn_calcable:
                 conn_calcable.close()
         
+    def run_controlla_cavi_sovrapposti(self):
+        result_init = self.inizializza_layer()
+        if (result_init==0):
+            return 0
+        #recupero le info di connex al DB da un qualunque dei layer:
+        connInfo = SCALE_layer.source()
+        db_dir = self.estrai_param_connessione(connInfo)
+        
+        overlapped_cavi = 0
+        conn_cutcable = None
+        cur_cutcable = None
+        
+        msg = QMessageBox()
+        msg.setText("Questo controllo cerchera' di individuare eventuali linee sovrapposte sul layer CAVO che la funzione CUTCABLE non e' stata in grado di spezzare per via di una scorretta geometria del cavo. Cliccando su OK verra' lanciato questo controllo, che potrebbe impiegare qualche minuto. Al termine dell'elaborazione verrete informati sul risultato")
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Controllo layer cavo")
+        msg.setStandardButtons(QMessageBox.Ok)
+        retval = msg.exec_()
+        
+        try:
+            conn_cutcable = psycopg2.connect(db_dir)
+            cur_cutcable = conn_cutcable.cursor()
+            Utils.logMessage('Controllo CAVI sovrapposti: inizio la procedura')
+            
+            overlapped_cavi = self.controlla_cavi_sovrapposti(theSchema, cur_cutcable)
+        
+        except psycopg2.Error, e:
+            Utils.logMessage("Errore cavi sovrapposti: " + e.pgerror)
+            conn_cutcable.rollback()
+            msg.setText("Errore cavi sovrapposti: " + e.pgerror)
+            msg.setIcon(QMessageBox.Critical)
+            msg.setWindowTitle("Errore!")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+            return 0
+        except SystemError, e:
+            Utils.logMessage("Errore cavi sovrapposti. Contattare l'amministratore." + str(e))
+            conn_cutcable.rollback()
+            msg.setText("Errore pulizia cavi sovrapposti. Contattare l'amministratore. " + str(e))
+            msg.setIcon(QMessageBox.Critical)
+            msg.setWindowTitle("Errore!")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+            return 0
+        else:
+            Utils.logMessage('CAVI sovrapposti: fine della procedura')
+            msg.setText("Sono state trovate %s coppie di CAVI parzialmente sovrapposti. Analizzate i log di QGis per i dettagli." % (overlapped_cavi))
+            msg.setIcon(QMessageBox.Information)
+            msg.setWindowTitle("cavi sovrapposti: risultato")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+            return 1
+        finally:
+            if conn_cutcable:
+                conn_cutcable.close()
+        
+    
+    def controlla_cavi_sovrapposti(self, theSchema, cursore):
+        query_controllo = """SELECT gid_a, gid_b FROM (
+        SELECT t1.gid AS gid_a, t2.gid AS gid_b,
+        ST_StartPoint((st_dump(t1.geom)).geom) AS start_point_a,
+        ST_EndPoint((st_dump(t1.geom)).geom) AS end_point_a,
+        ST_StartPoint((st_dump(t2.geom)).geom) AS start_point_b,
+        ST_EndPoint((st_dump(t2.geom)).geom) AS end_point_b
+        FROM %s.cavo_buffer t1, %s.cavo_buffer t2
+        WHERE t1.gid <> t2.gid
+        AND ST_Intersects(t1.buffered_geom, t2.buffered_geom) 
+        AND t1.gid < t2.gid
+        AND ST_Area(ST_Intersection(t1.buffered_geom, t2.buffered_geom)) > 0.1
+        ORDER BY t1.gid
+        ) AS foo
+        WHERE 
+        abs( (ST_Azimuth(start_point_a, end_point_a))/(2*pi())*360 - (ST_Azimuth(start_point_b, end_point_b))/(2*pi())*360 ) < 2.2;""" % (theSchema, theSchema)
+
+        cursore.execute(query_controllo)
+        rows = cursore.fetchall()
+        overlapped_cavi = len(rows)
+        Utils.logMessage( 'Numero di coppie di gid di cavo sovrapposte trovate = %s' % (str(overlapped_cavi)) )
+        for row in rows:
+            Utils.logMessage( 'Coppie di gid di cavo sovrapposti: %s' % (str(row)) )
+        
+        return overlapped_cavi
     
     def run_cutcable(self):
         result_init = self.inizializza_layer()
@@ -4135,6 +4224,9 @@ PFS: %(id_pfs)s"""
         #recupero le info di connex al DB da un qualunque dei layer:
         connInfo = SCALE_layer.source()
         db_dir = self.estrai_param_connessione(connInfo)
+        
+        overlapped_cavi = 0
+        cavo_controllato = 0
         
         msg = QMessageBox()
         msg.setText("ATTENZIONE! Con questa azione spezzerai il layer cavo creando nuove geometrie laddove i nodi di una linea si sovrappongono ad i nodi di un'altra linea. Questo significa che se il routing e' gia' stato eseguito, occorrera' ricalcolarlo. Il progetto che verra' modificato sara': %s, schema: %s. Desideri davvero proseguire?" % (str(db_dir), theSchema))
@@ -4158,12 +4250,21 @@ PFS: %(id_pfs)s"""
                 #se invece le funzioni le vogliamo creare sotto public rendendole cosi' uguali per tutto un DB:
                 query_topo = "SELECT public.split_lines_to_lines_pulizia('%s', %i); SELECT public.split_lines_to_lines_topo('%s', %i); SELECT public.split_lines_to_lines_conclusivo('%s', %i);" % (theSchema, self.epsg_srid, theSchema, self.epsg_srid, theSchema, self.epsg_srid)
                 #Utils.logMessage("query topo: " + query_topo)
-                cur_cutcable.execute(query_topo)
-                conn_cutcable.commit()
+                #cur_cutcable.execute(query_topo)
+                #conn_cutcable.commit()
                 '''query_topo = "SELECT %s.split_lines_to_lines_topo('%s', %i);" % (theSchema, theSchema, self.epsg_srid)
                 cur_cutcable.execute(query_topo)
                 query_conclusiva = "SELECT %s.split_lines_to_lines_conclusivo('%s', %i);" % (theSchema, theSchema, self.epsg_srid)
                 cur_cutcable.execute(query_conclusiva)'''
+                
+                msg.setText("La correzione del layer cavo sembrerebbe essere andata a buon fine.\nE' necessario pero' lanciare un controllo per individuare eventuali linee sovrapposte che la funzione non e' stata in grado di spezzare per via di una scorretta geometria del cavo. Cliccando su YES verra' lanciato questo controllo, che potrebbe impiegare qualche minuto. Al termine dell'elaborazione verrete informati sul risultato.\nPotrete lanciare questo comando anche successivamente cliccando l'apposita icona 'Controlla sovrapposizioni tra cavi'.\nE' fortemente consigliato controllare il layer CAVO.")
+                msg.setIcon(QMessageBox.Information)
+                msg.setWindowTitle("Controllare layer cavo?")
+                msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                retval = msg.exec_()
+                if (retval == 16384): #l'utente HA CLICCATO YES.
+                    overlapped_cavi = self.controlla_cavi_sovrapposti(theSchema, cur_cutcable)
+                    cavo_controllato = 1
             
             except psycopg2.Error, e:
                 Utils.logMessage("Errore CUTCABLE: " + e.pgerror)
@@ -4184,8 +4285,11 @@ PFS: %(id_pfs)s"""
                 retval = msg.exec_()
                 return 0
             else:
-                Utils.logMessage('CUTCABLE: fine della procedura con successo')
-                msg.setText("CUTCABLE: effettuato con successo! Potete procedere con il routing")
+                Utils.logMessage('CUTCABLE: fine della procedura')
+                if (cavo_controllato > 0):
+                    msg.setText("CUTCABLE: procedura effettuata! Sono state trovate %s coppie di CAVI parzialmente sovrapposti. Analizzate i log di QGis per i dettagli." % (overlapped_cavi))
+                else:
+                    msg.setText("CUTCABLE: procedura effettuata!\nNon e' stato efefttuato un controllo sui cavi sovrapposti: si raccomanda di lanciare questo controllo cliccando sull'apposita icona 'Controlla sovrapposizioni tra cavi'")
                 msg.setIcon(QMessageBox.Information)
                 msg.setWindowTitle("CUTCABLE: effettuato con successo!")
                 msg.setStandardButtons(QMessageBox.Ok)

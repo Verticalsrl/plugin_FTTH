@@ -236,6 +236,12 @@ EXECUTE format('DELETE FROM %s.cavo USING %s.cavo a WHERE ST_Equals(cavo.geom, a
 EXECUTE format('UPDATE %s.cavo SET codice_ins = b.codice_ins, codice_inf = b.codice_inf, tipo_pav=b.tipo_pav, n_mtubo=b.n_mtubo, n_tubi=b.n_tubi, d_tubi=b.d_tubi, libero=b.libero, n_mt_occ=b.n_mt_occ, mod_mtubo=b.mod_mtubo, tipo_minit=b.tipo_minit, tipo_posa=b.tipo_posa, posa_dett=b.posa_dett, flag_posa=b.flag_posa, tipo_scavo=b.tipo_scavo, id_pop_end=b.id_pop_end, cod_belf=b.cod_belf, lotto=b.lotto, length_m = ST_Length(cavo.geom), cavi_pr=b.cavi_pr, cavi_bh=b.cavi_bh, cavi_cd=b.cavi_cd FROM %s.cavo_%s b WHERE b.gid=cavo.gid_old AND cavo.codice_inf IS NULL;', schemaname, schemaname, time_epoch);
 
 
+--In ultima istanza per poter eseguire un controllo sui cavi sovrapposti creo qui una tabella di appoggio con il buffer delle linee:
+EXECUTE 'DROP TABLE IF EXISTS cavo_buffer';
+EXECUTE format('CREATE TABLE %s.cavo_buffer AS SELECT *, ST_Buffer(geom, 0.1)::geometry(POLYGON, %s) AS buffered_geom FROM %s.cavo;', schemaname, epsg_srid, schemaname);
+EXECUTE format('ALTER TABLE %s.cavo_buffer OWNER TO operatore;', schemaname);
+
+
 EXECUTE 'SET search_path = public, topology;';
 
 RETURN true;
@@ -320,6 +326,7 @@ WHERE a.gid_old = b.gid_old
 WHERE foo.gid_old=b.gid_old AND NOT ST_Contains(ST_Buffer(b.geom, 1), foo.geom)
 ORDER BY foo.gid_old;', time_old_table, epsg_srid);
 EXECUTE 'ALTER TABLE v_cavi_ricalcolati_insert OWNER TO operatore';
+
 
 EXECUTE 'SET search_path = public, topology;';
 

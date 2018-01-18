@@ -11,7 +11,7 @@ name=ProgettoFTTH_return
 qgisMinimumVersion=2.14
 qgisMaximumVersion=2.14
 description=Associazione contatori - PD - giunti - PFS - PFP
-version=5.4.3
+version=5.4.4
 author=A.R.Gaeta/Vertical Srl
 email=info@vertical.digital
 release_date=2017/01/18
@@ -32,6 +32,7 @@ changelog=
 		  - nuove formule per calcolo fender n_mtubo n_mt_occ etc secondo mail Gatti del 16 Gen 2018
 		  - modificata la UI "solid" riabilitando il pulsante per il consolidamento delle aree PFS e PFP, escludendo pero la popolazione dei pozzetti
 		  - baco nella funzione split_lines_to_lines_conclusivo: riporto i campi cavi_pr/bh/cd sul nuovo cavo spezzato
+		  - nuova funzione 'controllo cavi sovrapposti' con nuovo pulsante
     5.3:  - tolta la condizione "AND tipo_posa ~* '.*interr.*'" per il calcolo di n_mt_occ su scalccable
           - nel routing, aggiungo "WHERE source IS NOT NULL" a tutti i tipi di associazione per la creazione di cavoroute in db_cavoroute. Strano, non era mai successo prima...da tenere sotto controllo
           - ripristinata formula "f_192 = cavi_pr + cavi_bh + cavi_cd" su db_cavoroute
