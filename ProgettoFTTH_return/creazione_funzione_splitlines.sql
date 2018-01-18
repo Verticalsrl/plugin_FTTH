@@ -233,7 +233,7 @@ EXECUTE format('DELETE FROM %s.cavo USING %s.cavo a WHERE ST_Equals(cavo.geom, a
 --Nel caso volessi ripulire schemi in cui il routing e' gia' stato avviato e non si vuol rifare il tutto e mantenere quei cavi a cui sono associati delle n_ui puoi provare a lanciare (manualmente) la query seguente, anche se resta fortemente consigliato RIFARE il routing:
 --DELETE FROM cavo USING cavo a WHERE ST_Equals(cavo.geom, a.geom) AND cavo.n_ui < a.n_ui;
 --Aggiorno i campi:
-EXECUTE format('UPDATE %s.cavo SET codice_ins = b.codice_ins, codice_inf = b.codice_inf, tipo_pav=b.tipo_pav, n_mtubo=b.n_mtubo, n_tubi=b.n_tubi, d_tubi=b.d_tubi, libero=b.libero, n_mt_occ=b.n_mt_occ, mod_mtubo=b.mod_mtubo, tipo_minit=b.tipo_minit, tipo_posa=b.tipo_posa, posa_dett=b.posa_dett, flag_posa=b.flag_posa, tipo_scavo=b.tipo_scavo, id_pop_end=b.id_pop_end, cod_belf=b.cod_belf, lotto=b.lotto, length_m = ST_Length(cavo.geom) FROM %s.cavo_%s b WHERE b.gid=cavo.gid_old AND cavo.codice_inf IS NULL;', schemaname, schemaname, time_epoch);
+EXECUTE format('UPDATE %s.cavo SET codice_ins = b.codice_ins, codice_inf = b.codice_inf, tipo_pav=b.tipo_pav, n_mtubo=b.n_mtubo, n_tubi=b.n_tubi, d_tubi=b.d_tubi, libero=b.libero, n_mt_occ=b.n_mt_occ, mod_mtubo=b.mod_mtubo, tipo_minit=b.tipo_minit, tipo_posa=b.tipo_posa, posa_dett=b.posa_dett, flag_posa=b.flag_posa, tipo_scavo=b.tipo_scavo, id_pop_end=b.id_pop_end, cod_belf=b.cod_belf, lotto=b.lotto, length_m = ST_Length(cavo.geom), cavi_pr=b.cavi_pr, cavi_bh=b.cavi_bh, cavi_cd=b.cavi_cd FROM %s.cavo_%s b WHERE b.gid=cavo.gid_old AND cavo.codice_inf IS NULL;', schemaname, schemaname, time_epoch);
 
 
 EXECUTE 'SET search_path = public, topology;';
