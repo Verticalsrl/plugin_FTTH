@@ -4256,8 +4256,8 @@ PFS: %(id_pfs)s"""
                 #se invece le funzioni le vogliamo creare sotto public rendendole cosi' uguali per tutto un DB:
                 query_topo = "SELECT public.split_lines_to_lines_pulizia('%s', %i); SELECT public.split_lines_to_lines_topo('%s', %i); SELECT public.split_lines_to_lines_conclusivo('%s', %i);" % (theSchema, self.epsg_srid, theSchema, self.epsg_srid, theSchema, self.epsg_srid)
                 #Utils.logMessage("query topo: " + query_topo)
-                #cur_cutcable.execute(query_topo)
-                #conn_cutcable.commit()
+                cur_cutcable.execute(query_topo)
+                conn_cutcable.commit()
                 '''query_topo = "SELECT %s.split_lines_to_lines_topo('%s', %i);" % (theSchema, theSchema, self.epsg_srid)
                 cur_cutcable.execute(query_topo)
                 query_conclusiva = "SELECT %s.split_lines_to_lines_conclusivo('%s', %i);" % (theSchema, theSchema, self.epsg_srid)
