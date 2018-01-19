@@ -11,7 +11,7 @@ name=ProgettoFTTH_return
 qgisMinimumVersion=2.14
 qgisMaximumVersion=2.14
 description=Associazione contatori - PD - giunti - PFS - PFP
-version=5.4.5
+version=5.4.6
 author=A.R.Gaeta/Vertical Srl
 email=info@vertical.digital
 release_date=2017/01/19
@@ -35,6 +35,8 @@ changelog=
 		  - nuova funzione 'controllo cavi sovrapposti' con nuovo pulsante
 		  - tolto da cavoroute_labels le relazioni Contatori-contatore, e i cavoroute da 12 fibre in creazione_cavoroute_per_label.sql
 		  - inserita la decodifica "NO DIG" nella tabella public.nuova_codifica
+		  - sistemato baco per 'controllo cavi sovrapposti': non veniva creata la tabella dei buffer partendo direttamente dal pulsante del plugin
+		  - alcune ottimizzazioni sulla 'numerazione punti rete' da approfondire
     5.3:  - tolta la condizione "AND tipo_posa ~* '.*interr.*'" per il calcolo di n_mt_occ su scalccable
           - nel routing, aggiungo "WHERE source IS NOT NULL" a tutti i tipi di associazione per la creazione di cavoroute in db_cavoroute. Strano, non era mai successo prima...da tenere sotto controllo
           - ripristinata formula "f_192 = cavi_pr + cavi_bh + cavi_cd" su db_cavoroute

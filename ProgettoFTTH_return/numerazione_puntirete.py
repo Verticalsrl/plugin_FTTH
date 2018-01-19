@@ -221,7 +221,7 @@ def numerazione_ftth(dest_dir, self, theSchema):
                 #Ordino i dati secondo l'angolo e lunghezza:
                 where_clause = 'WHERE net_type!=\'%s\' AND azimuth_from_pd>=%f' % (self.NET_TYPE['PTA_PD'], angolo_principale)
                 query_seconda = QUERY_FIND_ANGLE_TO_PD % {'schema': theSchema, 'id_elemento': id_punto, 'tabella_punto': 'giunti', 'campo_id_elemento': 'id_giunto', 'where_clause': where_clause, 'gid_elemento': gid_punto, 'campo_gid_pgr': 'gid_pta', 'angle_offset': 'radians(360)', 'angolo_principale': angolo_principale, 'epsg_srid': self.epsg_srid}
-                Utils.logMessage(str(query_seconda))
+                #Utils.logMessage(str(query_seconda))
                 dict_cur.execute(query_seconda)
                 #adesso ho quei punti che hanno un angolo maggiore o uguale alla rotta madre, ordinati dal piu lungo al piu corto:
                 results_count = dict_cur.fetchall() #tira fuori un dictionary
@@ -233,6 +233,40 @@ def numerazione_ftth(dest_dir, self, theSchema):
                         query_count = "UPDATE %s.scala SET naming_of=%i WHERE id_scala='%s'" % (theSchema, count, from_p)
                     elif net_type==self.NET_TYPE['PTA_PTA']:
                         query_count = "UPDATE %s.giunti SET naming_of=%i WHERE id_giunto='%s'" % (theSchema, count, from_p)
+                    #query inutile dopo che passero ai vari livelli PTA-*, per ora mi serve per debug:
+                    elif net_type==self.NET_TYPE['GIUNTO_GIUNTO']:
+                        query_count = "UPDATE %s.giunti SET naming_of=%i WHERE id_giunto='%s'" % (theSchema, count, from_p)
+                    cursor_numerazione.execute(query_count)
+                    count += 1
+                    test_conn.commit()
+                    
+            #PTA-PFS
+            where_clause = 'WHERE net_type=\'%s\'' % (self.NET_TYPE['PTA_PFS'])
+            query_iniziale = QUERY_FIND_ANGLE_TO_PD_as_source % {'schema': theSchema, 'id_elemento': id_punto, 'tabella_punto': 'giunti', 'campo_id_elemento': 'id_giunto', 'where_clause': where_clause, 'gid_elemento': gid_punto, 'campo_gid_pgr': 'gid_pta', 'angle_offset': 0, 'angolo_principale': 0, 'epsg_srid': self.epsg_srid}
+            dict_cur.execute(query_iniziale)
+            result_iniziale = dict_cur.fetchone()
+            #Utils.logMessage(str(query_iniziale))
+            if result_iniziale!=None: #ok la situazione e' questa PTA-PFS continuo cosi'
+                angolo_principale = result_iniziale['azimuth_from_pd']
+                #Utils.logMessage(str(angolo_principale))
+                if angolo_principale==None:
+                    Utils.logMessage("Angolo Nullo: cosa vorra' dire?")
+                    #continue
+                #Ordino i dati secondo l'angolo e lunghezza:
+                where_clause = 'WHERE net_type!=\'%s\' AND azimuth_from_pd>=%f' % (self.NET_TYPE['PTA_PFS'], angolo_principale)
+                query_seconda = QUERY_FIND_ANGLE_TO_PD % {'schema': theSchema, 'id_elemento': id_punto, 'tabella_punto': 'giunti', 'campo_id_elemento': 'id_giunto', 'where_clause': where_clause, 'gid_elemento': gid_punto, 'campo_gid_pgr': 'gid_pta', 'angle_offset': 'radians(360)', 'angolo_principale': angolo_principale, 'epsg_srid': self.epsg_srid}
+                #Utils.logMessage(str(query_seconda))
+                dict_cur.execute(query_seconda)
+                #adesso ho quei punti che hanno un angolo maggiore o uguale alla rotta madre, ordinati dal piu lungo al piu corto:
+                results_count = dict_cur.fetchall() #tira fuori un dictionary
+                count = 1 #contatore per numerare i punti
+                for punto in results_count:
+                    net_type = punto['net_type']
+                    from_p = punto['from_p']
+                    if net_type==self.NET_TYPE['SCALA_PTA']:
+                        query_count = "UPDATE %s.scala SET naming_of=%i WHERE id_scala='%s';" % (theSchema, count, from_p)
+                    elif net_type==self.NET_TYPE['PTA_PTA']:
+                        query_count = "UPDATE %s.giunti SET naming_of=%i WHERE id_giunto='%s';" % (theSchema, count, from_p)
                     #query inutile dopo che passero ai vari livelli PTA-*, per ora mi serve per debug:
                     elif net_type==self.NET_TYPE['GIUNTO_GIUNTO']:
                         query_count = "UPDATE %s.giunti SET naming_of=%i WHERE id_giunto='%s'" % (theSchema, count, from_p)
@@ -308,7 +342,16 @@ def numerazione_ftth(dest_dir, self, theSchema):
         (SELECT id_scala AS id_pto, gid AS gid_pto, n_ui, naming_of,
         (SUM(n_ui) OVER (ORDER BY naming_of ASC) - n_ui + 1 || '-' ||
         SUM(n_ui) OVER (ORDER BY naming_of ASC)) AS fo_attive
-        FROM %s.scala WHERE id_giunto='%s' ORDER BY naming_of ASC) AS foo WHERE foo.id_pto=scala.id_scala;""" % (theSchema, theSchema, id_punto)
+        FROM %s.scala WHERE id_giunto='%s' AND id_sc_ref IS NULL ORDER BY naming_of ASC) AS foo WHERE foo.id_pto=scala.id_scala;""" % (theSchema, theSchema, id_punto)
+            cursor_numerazione.execute(query_fo_attive)
+            test_conn.commit()
+            
+            #Continuando a ciclare dentro i PTA popolo il campo FO_ATTIVE recuperando gli elementi connessi a questo punto della rete ad altri PTA:
+            query_fo_attive = """UPDATE %s.giunti SET fo_attive=foo.fo_attive FROM
+        (SELECT id_giunto AS id_pto, gid AS gid_pto, n_ui, naming_of,
+        (SUM(n_ui) OVER (ORDER BY naming_of ASC) - n_ui + 1 || '-' ||
+        SUM(n_ui) OVER (ORDER BY naming_of ASC)) AS fo_attive
+        FROM %s.giunti WHERE id_g_ref='%s' ORDER BY naming_of ASC) AS foo WHERE foo.id_pto=giunti.id_giunto;""" % (theSchema, theSchema, id_punto)
             cursor_numerazione.execute(query_fo_attive)
             test_conn.commit()
 
@@ -386,6 +429,24 @@ def numerazione_ftth(dest_dir, self, theSchema):
                     cursor_numerazione.execute(query_count)
                     count += 1
                     test_conn.commit()
+                    
+            #Continuando a ciclare dentro i GIUNTI popolo il campo FO_ATTIVE recuperando gli elementi connessi a questo punto della rete:
+            query_fo_attive = """UPDATE %s.scala SET fo_attive=foo.fo_attive FROM
+        (SELECT id_scala AS id_pto, gid AS gid_pto, n_ui, naming_of,
+        (SUM(n_ui) OVER (ORDER BY naming_of ASC) - n_ui + 1 || '-' ||
+        SUM(n_ui) OVER (ORDER BY naming_of ASC)) AS fo_attive
+        FROM %s.scala WHERE id_giunto='%s' AND id_sc_ref IS NULL ORDER BY naming_of ASC) AS foo WHERE foo.id_pto=scala.id_scala;""" % (theSchema, theSchema, id_punto)
+            cursor_numerazione.execute(query_fo_attive)
+            test_conn.commit()
+            
+            #Continuando a ciclare dentro i GIUNTI popolo il campo FO_ATTIVE recuperando gli elementi connessi a questo punto della rete ad altri GIUNTI:
+            query_fo_attive = """UPDATE %s.giunti SET fo_attive=foo.fo_attive FROM
+        (SELECT id_giunto AS id_pto, gid AS gid_pto, n_ui, naming_of,
+        (SUM(n_ui) OVER (ORDER BY naming_of ASC) - n_ui + 1 || '-' ||
+        SUM(n_ui) OVER (ORDER BY naming_of ASC)) AS fo_attive
+        FROM %s.giunti WHERE id_g_ref='%s' ORDER BY naming_of ASC) AS foo WHERE foo.id_pto=giunti.id_giunto;""" % (theSchema, theSchema, id_punto)
+            cursor_numerazione.execute(query_fo_attive)
+            test_conn.commit()
 
         Utils.logMessage('Fine analisi per numerazione GIUNTI')
 
@@ -437,7 +498,7 @@ def numerazione_ftth(dest_dir, self, theSchema):
         SUM(n_ui) OVER (ORDER BY naming_of ASC)) AS fo_attive
         FROM (
         SELECT 'SCALA'::text AS tipo_pto, id_scala AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer
-        FROM %(schema)s.scala WHERE id_pd='%(id_elemento)s' AND id_giunto IS NULL
+        FROM %(schema)s.scala WHERE id_pd='%(id_elemento)s' AND id_giunto IS NULL AND id_sc_ref IS NULL
         UNION
         select 'GIUNTO'::text AS tipo_pto, id_giunto AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer from %(schema)s.giunti WHERE id_pd='%(id_elemento)s' AND id_g_ref IS NULL
         ORDER BY naming_of ASC) AS foo3
@@ -455,7 +516,7 @@ def numerazione_ftth(dest_dir, self, theSchema):
         SUM(n_ui) OVER (ORDER BY naming_of ASC)) AS fo_attive
         FROM (
         SELECT 'SCALA'::text AS tipo_pto, id_scala AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer
-        FROM %(schema)s.scala WHERE id_pd='%(id_elemento)s' AND id_giunto IS NULL
+        FROM %(schema)s.scala WHERE id_pd='%(id_elemento)s' AND id_giunto IS NULL AND id_sc_ref IS NULL
         UNION
         select 'GIUNTO'::text AS tipo_pto, id_giunto AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer from %(schema)s.giunti WHERE id_pd='%(id_elemento)s' AND id_g_ref IS NULL
         ORDER BY naming_of ASC) AS foo3
@@ -463,6 +524,15 @@ def numerazione_ftth(dest_dir, self, theSchema):
         WHERE foo2.tipo_pto='GIUNTO') AS foo 
             WHERE foo.id_pto=giunti.id_giunto;"""
             query_fo_attive = query_fo_attive_raw % {'schema': theSchema, 'id_elemento': id_punto}
+            cursor_numerazione.execute(query_fo_attive)
+            test_conn.commit()
+            
+            #Continuando a ciclare dentro i PD popolo il campo FO_ATTIVE recuperando gli elementi connessi a questo punto della rete ad altri PD:
+            query_fo_attive = """UPDATE %s.pd SET fo_attive=foo.fo_attive FROM
+        (SELECT id_pd AS id_pto, gid AS gid_pto, n_ui, naming_of,
+        (SUM(n_ui) OVER (ORDER BY naming_of ASC) - n_ui + 1 || '-' ||
+        SUM(n_ui) OVER (ORDER BY naming_of ASC)) AS fo_attive
+        FROM %s.pd WHERE id_pd_ref='%s' ORDER BY naming_of ASC) AS foo WHERE foo.id_pto=pd.id_pd;""" % (theSchema, theSchema, id_punto)
             cursor_numerazione.execute(query_fo_attive)
             test_conn.commit()
         
@@ -499,12 +569,75 @@ def numerazione_ftth(dest_dir, self, theSchema):
                     net_type = punto['net_type']
                     from_p = punto['from_p']
                     if net_type==self.NET_TYPE['SCALA_PFS']:
-                        query_count = "UPDATE %s.scala SET naming_of=%i WHERE id_scala='%s'" % (theSchema, count, from_p)
+                        query_count = "UPDATE %s.scala SET naming_of=%i WHERE id_scala='%s';" % (theSchema, count, from_p)
+                    elif net_type==self.NET_TYPE['PTA_PFS']:
+                        query_count = "UPDATE %s.giunti SET naming_of=%i WHERE id_giunto='%s';" % (theSchema, count, from_p)
                     elif net_type==self.NET_TYPE['PD_PFS']:
-                        query_count = "UPDATE %s.pd SET naming_of=%i WHERE id_pd='%s'" % (theSchema, count, from_p)
+                        query_count = "UPDATE %s.pd SET naming_of=%i WHERE id_pd='%s';" % (theSchema, count, from_p)
                     cursor_numerazione.execute(query_count)
                     count += 1
                     test_conn.commit()
+                    
+            #Continuando a ciclare dentro i PFS popolo il campo FO_ATTIVE recuperando gli elementi connessi a questo punto della rete:
+            query_fo_attive_raw = """UPDATE %(schema)s.scala SET fo_attive=foo.fo_attive FROM
+        (SELECT * FROM (
+        SELECT *, 
+        (SUM(n_ui) OVER (ORDER BY naming_of ASC) - n_ui + 1 || '-' ||
+        SUM(n_ui) OVER (ORDER BY naming_of ASC)) AS fo_attive
+        FROM (
+        SELECT 'SCALA'::text AS tipo_pto, id_scala AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer
+        FROM %(schema)s.scala WHERE id_pfs='%(id_elemento)s' AND id_pd IS NULL AND id_giunto IS NULL AND id_sc_ref IS NULL
+        UNION
+        select 'PTA'::text AS tipo_pto, id_giunto AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer from %(schema)s.giunti WHERE id_pfs='%(id_elemento)s' AND id_pd IS NULL AND id_g_ref IS NULL
+        UNION
+        select 'PD'::text AS tipo_pto, id_pd AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer from %(schema)s.pd WHERE id_pfs='%(id_elemento)s' AND id_pd_ref IS NULL
+        ORDER BY naming_of ASC) AS foo3
+        ) AS foo2
+        WHERE foo2.tipo_pto='SCALA') AS foo 
+            WHERE foo.id_pto=scala.id_scala;"""
+            query_fo_attive = query_fo_attive_raw % {'schema': theSchema, 'id_elemento': id_punto}
+            #Utils.logMessage(query_fo_attive)
+            cursor_numerazione.execute(query_fo_attive)
+            
+            query_fo_attive_raw = """UPDATE %(schema)s.giunti SET fo_attive=foo.fo_attive FROM
+        (SELECT * FROM (
+        SELECT *, 
+        (SUM(n_ui) OVER (ORDER BY naming_of ASC) - n_ui + 1 || '-' ||
+        SUM(n_ui) OVER (ORDER BY naming_of ASC)) AS fo_attive
+        FROM (
+        SELECT 'SCALA'::text AS tipo_pto, id_scala AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer
+        FROM %(schema)s.scala WHERE id_pfs='%(id_elemento)s' AND id_pd IS NULL AND id_giunto IS NULL AND id_sc_ref IS NULL
+        UNION
+        select 'PTA'::text AS tipo_pto, id_giunto AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer from %(schema)s.giunti WHERE id_pfs='%(id_elemento)s' AND id_pd IS NULL AND id_g_ref IS NULL
+        UNION
+        select 'PD'::text AS tipo_pto, id_pd AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer from %(schema)s.pd WHERE id_pfs='%(id_elemento)s' AND id_pd_ref IS NULL
+        ORDER BY naming_of ASC) AS foo3
+        ) AS foo2
+        WHERE foo2.tipo_pto='PTA') AS foo 
+            WHERE foo.id_pto=giunti.id_giunto;"""
+            query_fo_attive = query_fo_attive_raw % {'schema': theSchema, 'id_elemento': id_punto}
+            cursor_numerazione.execute(query_fo_attive)
+            test_conn.commit()
+            
+            query_fo_attive_raw = """UPDATE %(schema)s.pd SET fo_attive=foo.fo_attive FROM
+        (SELECT * FROM (
+        SELECT *, 
+        (SUM(n_ui) OVER (ORDER BY naming_of ASC) - n_ui + 1 || '-' ||
+        SUM(n_ui) OVER (ORDER BY naming_of ASC)) AS fo_attive
+        FROM (
+        SELECT 'SCALA'::text AS tipo_pto, id_scala AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer
+        FROM %(schema)s.scala WHERE id_pfs='%(id_elemento)s' AND id_pd IS NULL AND id_giunto IS NULL AND id_sc_ref IS NULL
+        UNION
+        select 'PTA'::text AS tipo_pto, id_giunto AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer from %(schema)s.giunti WHERE id_pfs='%(id_elemento)s' AND id_pd IS NULL AND id_g_ref IS NULL
+        UNION
+        select 'PD'::text AS tipo_pto, id_pd AS id_pto, gid::integer AS gid_pto, n_ui::integer, naming_of::integer from %(schema)s.pd WHERE id_pfs='%(id_elemento)s' AND id_pd_ref IS NULL
+        ORDER BY naming_of ASC) AS foo3
+        ) AS foo2
+        WHERE foo2.tipo_pto='PD') AS foo 
+            WHERE foo.id_pto=pd.id_pd;"""
+            query_fo_attive = query_fo_attive_raw % {'schema': theSchema, 'id_elemento': id_punto}
+            cursor_numerazione.execute(query_fo_attive)
+            test_conn.commit()
         
         Utils.logMessage('Fine analisi per numerazione PFS')
     

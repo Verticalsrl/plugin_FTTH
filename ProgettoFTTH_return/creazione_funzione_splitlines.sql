@@ -237,7 +237,7 @@ EXECUTE format('UPDATE %s.cavo SET codice_ins = b.codice_ins, codice_inf = b.cod
 
 
 --In ultima istanza per poter eseguire un controllo sui cavi sovrapposti creo qui una tabella di appoggio con il buffer delle linee:
-EXECUTE 'DROP TABLE IF EXISTS cavo_buffer';
+EXECUTE format('DROP TABLE IF EXISTS %s.cavo_buffer;', schemaname);
 EXECUTE format('CREATE TABLE %s.cavo_buffer AS SELECT *, ST_Buffer(geom, 0.1)::geometry(POLYGON, %s) AS buffered_geom FROM %s.cavo;', schemaname, epsg_srid, schemaname);
 EXECUTE format('ALTER TABLE %s.cavo_buffer OWNER TO operatore;', schemaname);
 

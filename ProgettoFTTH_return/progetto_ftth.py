@@ -4158,6 +4158,12 @@ PFS: %(id_pfs)s"""
             cur_cutcable = conn_cutcable.cursor()
             Utils.logMessage('Controllo CAVI sovrapposti: inizio la procedura')
             
+            #creo prima la tabella dei buffer:
+            query_buffer = 'DROP TABLE IF EXISTS %s.cavo_buffer; CREATE TABLE %s.cavo_buffer AS SELECT *, ST_Buffer(geom, 0.1)::geometry(POLYGON, %s) AS buffered_geom FROM %s.cavo; ALTER TABLE %s.cavo_buffer OWNER TO operatore;' % (theSchema, theSchema, self.epsg_srid, theSchema, theSchema)
+            cur_cutcable.execute(query_buffer)
+            conn_cutcable.commit()
+            
+            
             overlapped_cavi = self.controlla_cavi_sovrapposti(theSchema, cur_cutcable)
         
         except psycopg2.Error, e:
