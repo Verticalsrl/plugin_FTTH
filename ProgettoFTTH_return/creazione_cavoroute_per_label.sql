@@ -33,7 +33,10 @@ SELECT (public.ST_Dump(public.ST_Split(public.ST_Snap(a.geom, b.geom, 0.01), b.g
 FROM cavoroute a
 JOIN cavoroute_node_labels b 
 ON public.ST_DWithin(b.geom, a.geom, 0.01)
-WHERE a.net_type != 'Contatori-PTA'
+WHERE
+--a.net_type != 'Contatori-PTA'
+--da mail di Gatti del 18 gennaio 2018: escludo anche le scale di scala e le fibre da 12:
+a.net_type NOT IN ('Contatori-PTA', 'Contatori-contatore') AND a.fibre_coun != 12
 GROUP BY public.ST_Dump(public.ST_Split(public.ST_Snap(a.geom, b.geom, 0.01), b.geom))
 ) AS foo GROUP BY geom
 ) AS foo2 GROUP BY gid_cavoroute);
