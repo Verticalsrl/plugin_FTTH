@@ -122,12 +122,12 @@ UPDATE cavo SET
 	WHEN tot_cavi=0 THEN '0'
     ELSE (tot_cavi+1)::text
     END
-WHERE codice_inf = 'ADDUZIONE_SCAVO';
+WHERE upper(codice_inf) = 'ADDUZIONE_SCAVO';
 
 UPDATE cavo SET
 	n_tubi = 3,
 	d_tubi = 50
-WHERE codice_inf = 'TRINCEA NORMALE_ATT';
+WHERE upper(codice_inf) = 'TRINCEA NORMALE_ATT';
 
 
 RAISE NOTICE 'calcolo sui campi di cavo ultimato';
