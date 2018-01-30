@@ -80,11 +80,11 @@ WHERE flag_posa ~* '.*si.*' AND tipo_posa ~* '.*interr.*';
 UPDATE cavo SET 
     n_mt_occ = COALESCE(n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int, '0')::text,
     --n_mtubo = ceil(( COALESCE(n_mt_occ_1::int + n_mt_occ_2::int + n_mt_occ_cd::int, '0') )::double precision / 7) || 'x7'
-	n_mtubo = (
-	ceil(( COALESCE(n_mt_occ_1::int, '0') )::double precision / 7) +
-	ceil(( COALESCE(n_mt_occ_2::int, '0') )::double precision / 7) +
-	ceil(( COALESCE(n_mt_occ_cd::int, '0') )::double precision / 7)
-	)::integer || 'x7'
+    n_mtubo = (
+    ceil(( COALESCE(n_mt_occ_1::int, '0') )::double precision / 7) +
+    ceil(( COALESCE(n_mt_occ_2::int, '0') )::double precision / 7) +
+    ceil(( COALESCE(n_mt_occ_cd::int, '0') )::double precision / 7)
+    )::integer || 'x7'
 WHERE flag_posa ~* '.*si.*' AND tipo_posa ~* '.*interr.*';
 
 UPDATE cavo SET
@@ -116,17 +116,17 @@ SET n_mtubo = NULL
 WHERE tipo_posa IS NULL AND flag_posa IS NULL;
 
 UPDATE cavo SET
-	n_tubi = 1,
-	n_mtubo = '0',
-	n_mt_occ = CASE
-	WHEN tot_cavi=0 THEN '0'
+    n_tubi = 1,
+    n_mtubo = '0',
+    n_mt_occ = CASE
+    WHEN tot_cavi=0 THEN '0'
     ELSE (tot_cavi+1)::text
     END
 WHERE upper(codice_inf) = 'ADDUZIONE_SCAVO';
 
 UPDATE cavo SET
-	n_tubi = 3,
-	d_tubi = 50
+    n_tubi = 3,
+    d_tubi = 50
 WHERE upper(codice_inf) = 'TRINCEA NORMALE_ATT';
 
 
