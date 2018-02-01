@@ -2,52 +2,55 @@
     <qresource prefix="/plugins/ProgettoFTTH" >
         <file>grouping_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>config_and_create.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>compare_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>cavo_route_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>export_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>help_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>download_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>computo_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>VERTICAL_SOLUTIONS.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>metadata.txt</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>counting_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>razor_blade_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>calc_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>update_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>append_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>cloneschema_C83737.png</file>
     </qresource>
-	<qresource prefix="/plugins/ProgettoFTTH" >
+    <qresource prefix="/plugins/ProgettoFTTH" >
         <file>overlap_C83737.png</file>
+    </qresource>
+    <qresource prefix="/plugins/ProgettoFTTH" >
+        <file>network_C83737.png</file>
     </qresource>
 </RCC>

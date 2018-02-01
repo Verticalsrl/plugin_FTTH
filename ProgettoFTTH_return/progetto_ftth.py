@@ -3456,6 +3456,13 @@ PFS: %(id_pfs)s"""
             text=self.tr(u'aggiorna le funzioni a livello di DB'),
             callback=self.run_updatedb,
             parent=self.iface.mainWindow())
+            
+        icon_path = ':/plugins/ProgettoFTTH/network_C83737.png'
+        self.add_action(
+            icon_path,
+            text=self.tr(u'Sperimentale: genera viste nodes-edges per la creazione del sinottico'),
+            callback=self.run_sinottico,
+            parent=self.iface.mainWindow())
         
         icon_path = ':/plugins/ProgettoFTTH/help_C83737.png'
         self.add_action(
@@ -4084,6 +4091,105 @@ PFS: %(id_pfs)s"""
         finally:
             if conn_updatedb:
                 conn_updatedb.close()
+    
+    
+    def run_sinottico(self):
+        result_init = self.inizializza_layer()
+        if (result_init==0):
+            return 0
+        msg = QMessageBox()
+        #recupero le info di connex al DB da un qualunque dei layer:
+        connInfo = SCALE_layer.source()
+        db_dir = self.estrai_param_connessione(connInfo)
+        #apro il cursore per leggere/scrivere sul DB:
+        conn_sinottico = psycopg2.connect(db_dir)
+        cur_sinottico = conn_sinottico.cursor()
+        Utils.logMessage('SINOTTICO: inizio la procedura')
+        try:
+            #recupero i PFS del progetto:
+            query_sinottico = "SELECT DISTINCT id_pfs FROM %s.pfs ORDER BY id_pfs;" % (theSchema)
+            #Utils.logMessage("query topo: " + query_calcable)
+            cur_sinottico.execute(query_sinottico)
+            #conn_sinottico.commit()
+            rows = cur_sinottico.fetchall()
+            n_pfs = len(rows)
+            Utils.logMessage( 'Numero di PFS trovati = %s' % (str(n_pfs)) )
+            for row in rows:
+                id_pfs = str(row[0])
+                Utils.logMessage( 'ID del PFS: %s' % (id_pfs) )
+                query_nodes_raw = """CREATE OR REPLACE VIEW %(schema)s.gephi_nodes_%(id_pfs)s AS
+SELECT id_scala AS id, id_scala AS label, 7 AS level, 'SCALA' AS group, 1 AS size FROM %(schema)s.scala WHERE id_pfs='%(id_pfs)s' AND id_sc_ref IS NOT NULL
+UNION
+SELECT id_scala AS id, id_scala AS label, 6 AS level, 'SCALA' AS group, 2 AS size FROM %(schema)s.scala WHERE id_pfs='%(id_pfs)s' AND id_sc_ref IS NULL
+UNION
+SELECT id_giunto AS id, id_giunto AS label, 5 AS level, 'GIUNTO' AS group, 3 AS size FROM %(schema)s.giunti WHERE id_pfs='%(id_pfs)s' AND id_g_ref IS NOT NULL
+UNION
+SELECT id_giunto AS id, id_giunto AS label, 4 AS level, 'GIUNTO' AS group, 4 AS size FROM %(schema)s.giunti WHERE id_pfs='%(id_pfs)s' AND id_g_ref IS NULL
+UNION
+SELECT id_pd AS id, id_pd AS label, 3 AS level, 'PD' AS group, 5 AS size FROM %(schema)s.pd WHERE id_pfs='%(id_pfs)s' AND id_pd IS NOT NULL
+UNION
+SELECT id_pd AS id, id_pd AS label, 2 AS level, 'PD' AS group, 6 AS size FROM %(schema)s.pd WHERE id_pfs='%(id_pfs)s' AND id_pd IS NULL
+UNION
+                SELECT id_pfs AS id, id_pfs AS label, 1 AS level, 'PFS' AS group, 7 AS size FROM %(schema)s.pfs WHERE id_pfs='%(id_pfs)s';"""
+                query_nodes = query_nodes_raw % {'schema': theSchema, 'id_pfs': id_pfs}
+                cur_sinottico.execute(query_nodes)
+                conn_sinottico.commit()
+                
+                query_edges_raw = """CREATE OR REPLACE VIEW %(schema)s.gephi_edges_%(id_pfs)s AS
+WITH tutti AS (
+SELECT id_scala AS id, 'Contatore' AS tipo, geom FROM %(schema)s.scala WHERE id_pfs='%(id_pfs)s'
+UNION
+SELECT id_giunto, 'Giunto', geom FROM %(schema)s.giunti WHERE id_pfs='%(id_pfs)s'
+UNION
+SELECT id_pd, 'PD', geom FROM %(schema)s.pd WHERE id_pfs='%(id_pfs)s'
+UNION
+SELECT id_pfs, 'PFS', geom FROM %(schema)s.pfs WHERE id_pfs='%(id_pfs)s'
+)
+SELECT b.id AS source, c.id AS target, gid AS id,  
+regexp_replace(temp_cavo_label::text, '[{}"]', '','g')
+AS label
+FROM %(schema)s.cavoroute a
+JOIN
+tutti b ON a.from_p=b.id
+JOIN
+                tutti c ON a.to_p=c.id;"""
+                query_edges = query_edges_raw % {'schema': theSchema, 'id_pfs': id_pfs}
+                cur_sinottico.execute(query_edges)
+                conn_sinottico.commit()
+                
+                
+                
+        
+        except psycopg2.Error, e:
+            Utils.logMessage("Errore SINOTTICO: " + e.pgerror)
+            conn_sinottico.rollback()
+            msg.setText("Errore SINOTTICO: " + e.pgerror)
+            msg.setIcon(QMessageBox.Critical)
+            msg.setWindowTitle("Errore!")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+            return 0
+        except SystemError, e:
+            Utils.logMessage("Errore SINOTTICO. Contattare l'amministratore." + str(e))
+            conn_sinottico.rollback()
+            msg.setText("Errore SINOTTICO. Contattare l'amministratore. " + str(e))
+            msg.setIcon(QMessageBox.Critical)
+            msg.setWindowTitle("Errore!")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+            return 0
+        else:
+            Utils.logMessage('SINOTTICO: fine della procedura con successo')
+            msg.setText("SINOTTICO: effettuato con successo!")
+            msg.setIcon(QMessageBox.Information)
+            msg.setWindowTitle("SINOTTICO: effettuato con successo!")
+            msg.setStandardButtons(QMessageBox.Ok)
+            retval = msg.exec_()
+            return 1
+        finally:
+            if conn_sinottico:
+                conn_sinottico.close()
+    
     
     def run_calcable(self):
         result_init = self.inizializza_layer()
