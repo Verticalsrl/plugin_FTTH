@@ -4117,7 +4117,7 @@ PFS: %(id_pfs)s"""
             for row in rows:
                 id_pfs = str(row[0])
                 Utils.logMessage( 'ID del PFS: %s' % (id_pfs) )
-                query_nodes_raw = """CREATE OR REPLACE VIEW %(schema)s.gephi_nodes_%(id_pfs)s AS
+                query_nodes_raw = """DROP VIEW IF EXISTS %(schema)s.gephi_nodes_%(id_pfs)s; CREATE OR REPLACE VIEW %(schema)s.gephi_nodes_%(id_pfs)s AS
 SELECT id_scala AS id, id_scala AS label, 7 AS level, 'SCALA' AS group, 1 AS size FROM %(schema)s.scala WHERE id_pfs='%(id_pfs)s' AND id_sc_ref IS NOT NULL
 UNION
 SELECT id_scala AS id, id_scala AS label, 6 AS level, 'SCALA' AS group, 2 AS size FROM %(schema)s.scala WHERE id_pfs='%(id_pfs)s' AND id_sc_ref IS NULL
@@ -4135,7 +4135,7 @@ UNION
                 cur_sinottico.execute(query_nodes)
                 conn_sinottico.commit()
                 
-                query_edges_raw = """CREATE OR REPLACE VIEW %(schema)s.gephi_edges_%(id_pfs)s AS
+                query_edges_raw = """DROP VIEW IF EXISTS %(schema)s.gephi_edges_%(id_pfs)s; CREATE OR REPLACE VIEW %(schema)s.gephi_edges_%(id_pfs)s AS
 WITH tutti AS (
 SELECT id_scala AS id, 'Contatore' AS tipo, geom FROM %(schema)s.scala WHERE id_pfs='%(id_pfs)s'
 UNION
@@ -4145,7 +4145,7 @@ SELECT id_pd, 'PD', geom FROM %(schema)s.pd WHERE id_pfs='%(id_pfs)s'
 UNION
 SELECT id_pfs, 'PFS', geom FROM %(schema)s.pfs WHERE id_pfs='%(id_pfs)s'
 )
-SELECT b.id AS source, c.id AS target, gid AS id,  
+SELECT b.id AS source, c.id AS target, b.id AS from, c.id AS to, gid AS id,  
 regexp_replace(temp_cavo_label::text, '[{}"]', '','g')
 AS label
 FROM %(schema)s.cavoroute a
@@ -4156,8 +4156,6 @@ JOIN
                 query_edges = query_edges_raw % {'schema': theSchema, 'id_pfs': id_pfs}
                 cur_sinottico.execute(query_edges)
                 conn_sinottico.commit()
-                
-                
                 
         
         except psycopg2.Error, e:
