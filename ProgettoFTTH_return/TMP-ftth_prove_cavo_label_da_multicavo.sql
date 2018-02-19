@@ -54,8 +54,52 @@ gid=
 60
 */
 --YES!!!
+--poi potrei unire le linee che hanno stessi attributi ad esempio creo un array_agg di gid, in questo caso ad esempio [20, 60], e tutti i singoli segmenti che hanno uguale questo campo li unisco in modo tale da non avere troppe spezzate...Si potrebbe funzionare!!
 
 
-  
-  
+/***** QUERY 1 *****/
+SELECT element_id, array_agg(topogeo_id) FROM sheath_with_loc_topo.relation GROUP BY element_id ORDER BY element_id;
+--cicli poi dentro il risultato e per ogni element_id recuperi la lista di topogeo_id associata.
+
+/***** QUERY 2 *****/
+--questa lista di topogeo_id la usi per selezionare dallo shp originario:
+SELECT gid, spec_id, fiber_coun FROM pc_ac05w.sheath_with_loc r WHERE (r.topo_geom).id IN (25, 63);
+
+
+/***** UNICA QUERY *****/
+CREATE TABLE pc_ac05w.cavonuovo_labels AS
+WITH elem_topo AS (SELECT element_id, array_agg(topogeo_id) AS topoid_arr FROM sheath_with_loc_topo.relation GROUP BY element_id ORDER BY element_id)
+SELECT c.edge_id, foo.*, c.geom FROM sheath_with_loc_topo.edge_data c
+LEFT JOIN (
+SELECT 
+array_to_string(
+array_agg('1mc ' || fiber_coun || ' # ' || round(ST_Length(geom)) || 'm')
+, ', ') AS cavo_label,
+max(element_id) AS elem_id, array_agg(gid) AS gids_cavoroute, array_agg(spec_id) AS spec_id_arr, array_agg(fiber_coun) AS fiber_coun_arr, topoid_arr, count(*)
+FROM pc_ac05w.sheath_with_loc r,
+elem_topo b
+WHERE (r.topo_geom).id = ANY (topoid_arr)
+GROUP BY topoid_arr ORDER BY max(element_id)
+) AS foo ON foo.elem_id=c.edge_id;
+--i record NULL potrebbero individuare degli errori nella geometria dei cavi --> COMUNICA QUESTO ERRORE ALL'UTENTE!!!
+SELECT edge_id, topogeo_id, count(*) OVER () FROM pc_ac05w.cavonuovo_labels, sheath_with_loc_topo.relation rel WHERE elem_id IS NULL AND element_id = edge_id ORDER BY topogeo_id;
+--if >0 --> SEGNALA ERRORE! I "topogeo_id" elencati potrebbero appartenere a delle geometrie scorrette
+
+--per valutare se l'unione delle geometrie possa essere utile o meno, conto gli elementi:
+SELECT
+(SELECT count(*) FROM pc_ac05w.cavonuovo_labels a WHERE a.gids_cavoroute IS NOT NULL),
+(SELECT count(*) FROM (SELECT gids_cavoroute FROM pc_ac05w.cavonuovo_labels WHERE gids_cavoroute IS NOT NULL GROUP BY gids_cavoroute
+) AS foo):
+--se i 2 count sono uguali, o differiscono di poco, allora non ha senso unire i segmenti
+
+
+/* Query di unione geometrie forse inutile...
+--A questo punto, posso provare a creare delle geometrie univoche laddove il campo gids_cavi sia il medesimo OVVERO laddove il segmento di cavo è attraversato dagli stessi cavi, sebbene sia stato spezzato all'intersezione con un nodo:
+CREATE TABLE pc_ac05w.cavonuovo_uniti_label AS
+SELECT row_number() OVER (ORDER BY gids_cavoroute) AS gid, gids_cavoroute, array_agg(edge_id) AS edge_ids_arr, ST_Collect(geom) AS the_geom, ST_Multi(ST_Union(geom)) as singlegeom FROM pc_ac05w.cavonuovo_labels GROUP BY gids_cavoroute;
+--in questo caso l'edge_ids_arr ci dice quali segmenti edge non sono associati a dei cavi laddove gids_cavoroute IS NULL...ma prelevo questa informazione con delle query precedenti più raffinate.
+--QUEST'ULTIMA QUERY E'INUTILE! Difatti quando spezzo il cavo in base ai nodi, non mi serve più riunirlo: ogni segmento è di fatto portatore di uno specifico numero di fibre. Potrebbero esserci tuttavia dei casi in cui ciò non succede...Al massimo fare una query per valutare ciò.
+*/
+
+
 --Source: http://blog.mathieu-leplatre.info/use-postgis-topologies-to-clean-up-road-networks.html
